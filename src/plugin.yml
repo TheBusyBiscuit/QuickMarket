@@ -1,0 +1,19 @@
+name: QuickMarket
+version: 1.2.4
+author: mrCookieSlime
+website: http://mrcookieslime.github.io/
+depend: [Vault]
+softdepend: [CS-CoreLib, ClearLag, PrisonUtils]
+
+main: me.mrCookieSlime.QuickMarket.QuickMarket
+
+permissions:
+  QuickMarket.shop.infinite:
+    description: Allows you to make infinite Shops
+    default: op
+  QuickMarket.shop.bypass:
+    description: Allows you to modify other Shops
+    default: op
+  QuickMarket.market.admin:
+    description: Allows you to create/delete Marketstands
+    default: op
