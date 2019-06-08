@@ -61,6 +61,7 @@ public class QuickMarket extends JavaPlugin {
 			local.setDefault("shops.editing", "&cThis Shop is currently being edited! Please come back later!");
 			local.setDefault("shops.delete-via-sign", "&4Delete the Shop using the Shopmenu instead of breaking the Block");
 			local.setDefault("shops.no-access", "&4You are not allowed to edit this Shop!");
+			local.setDefault("shops.no-permission", "&4You are not allowed to create Shops!");
 			
 			local.setDefault("shops.sold", "&8+ &6{MONEY} &8[&cSold&o {AMOUNT} &cItems&8]");
 			local.setDefault("shops.sold-owner", "&8- &6{MONEY} &8[&c{PLAYER} sold&o {AMOUNT} &cItems&8]");
@@ -76,6 +77,7 @@ public class QuickMarket extends JavaPlugin {
 			local.setDefault("market.rented", "&aYou successfully rented this MarketStand for %days% Day(s)!");
 			local.setDefault("market.not-a-valid-price", "&cThe Price on Line 2 is not valid!");
 			local.setDefault("market.delete-via-sign", "&4Delete the Shop by destroying the Marketstand Sign");
+			local.setDefault("market.no-permission", "&4You are not allowed to create Marketstands!");
 			local.save();
 			
 			if (!new File("data-storage/QuickMarket/shops").exists()) new File("data-storage/QuickMarket/shops").mkdirs();

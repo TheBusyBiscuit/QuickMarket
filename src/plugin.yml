@@ -19,3 +19,6 @@ permissions:
   QuickMarket.market.admin:
     description: Allows you to create/delete Marketstands
     default: op
+  QuickMarket.shop.create:
+    description: Allows you to create Shops
+    default: true

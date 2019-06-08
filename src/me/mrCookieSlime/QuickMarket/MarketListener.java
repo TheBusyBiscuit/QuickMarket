@@ -227,49 +227,55 @@ public class MarketListener implements Listener {
 		Sign sign = (Sign) e.getBlock().getState();
 		if (sign.getBlockData() instanceof WallSign) {
 			if (e.getLine(0).equalsIgnoreCase(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', QuickMarket.getInstance().cfg.getString("shops.prefix"))))) {
-				Block chest = e.getBlock().getRelative(((WallSign) sign.getBlockData()).getFacing().getOppositeFace());
-				
-				if (!chests.contains(chest.getType())) {
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-chest", true);
-					e.setCancelled(true);
-					return;
+				if (e.getPlayer().hasPermission("QuickMarket.shop.create")) {
+					Block chest = e.getBlock().getRelative(((WallSign) sign.getBlockData()).getFacing().getOppositeFace());
+					
+					if (!chests.contains(chest.getType())) {
+						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-chest", true);
+						e.setCancelled(true);
+						return;
+					}
+					else {
+						if (!e.getLine(1).matches("[0-9]+")) {
+							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
+							e.setCancelled(true);
+							return;
+						}
+						
+						if (!e.getLine(2).matches("[0-9\\.]+")) {
+							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-price", true);
+							e.setCancelled(true);
+							return;
+						}
+						
+						double price = Double.valueOf(e.getLine(2));
+						ShopType type = null;
+						
+						if (e.getLine(3).equalsIgnoreCase("sell")) type = ShopType.SELL;
+						else if (e.getLine(3).equalsIgnoreCase("buy")) type = ShopType.BUY;
+						else if (e.getLine(3).equalsIgnoreCase("sellall")) type = ShopType.SELL_ALL;
+						else {
+							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-type", true);
+							e.setCancelled(true);
+							return;
+						}
+
+						int amount = Integer.parseInt(e.getLine(1));
+						if (amount > 0) {
+							PlayerShop shop = new PlayerShop(e.getBlock(), chest, e.getPlayer(), amount, price, type);
+							e.setCancelled(true);
+							shop.update(true);
+						}
+						else {
+							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
+							e.setCancelled(true);
+							return;
+						}
+					}
 				}
 				else {
-					if (!e.getLine(1).matches("[0-9]+")) {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
-						e.setCancelled(true);
-						return;
-					}
-					
-					if (!e.getLine(2).matches("[0-9\\.]+")) {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-price", true);
-						e.setCancelled(true);
-						return;
-					}
-					
-					double price = Double.valueOf(e.getLine(2));
-					ShopType type = null;
-					
-					if (e.getLine(3).equalsIgnoreCase("sell")) type = ShopType.SELL;
-					else if (e.getLine(3).equalsIgnoreCase("buy")) type = ShopType.BUY;
-					else if (e.getLine(3).equalsIgnoreCase("sellall")) type = ShopType.SELL_ALL;
-					else {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-type", true);
-						e.setCancelled(true);
-						return;
-					}
-
-					int amount = Integer.parseInt(e.getLine(1));
-					if (amount > 0) {
-						PlayerShop shop = new PlayerShop(e.getBlock(), chest, e.getPlayer(), amount, price, type);
-						e.setCancelled(true);
-						shop.update(true);
-					}
-					else {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
-						e.setCancelled(true);
-						return;
-					}
+					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-permission", true);
+					e.setCancelled(true);
 				}
 			}
 			else if (e.getLine(0).equalsIgnoreCase(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', QuickMarket.getInstance().cfg.getString("markets.prefix"))))) {
@@ -282,7 +288,10 @@ public class MarketListener implements Listener {
 					}
 					else createMarket(e, chest, 1, 100.0, ShopType.BUY);
 				}
-				else e.setCancelled(true);
+				else {
+					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.no-permission", true);
+					e.setCancelled(true);
+				}
 			}
 			else if (e.getLine(0).equalsIgnoreCase("[MarketStand]")) {
 				if (e.getPlayer().hasPermission("QuickMarket.market.admin")) {
@@ -296,7 +305,10 @@ public class MarketListener implements Listener {
 					e.setCancelled(true);
 					new MarketStand(e.getBlock(), price);
 				}
-				else e.setCancelled(true);
+				else {
+					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.no-permission", true);
+					e.setCancelled(true);
+				}
 			}
 		}
 	}
