@@ -151,6 +151,7 @@ public class PlayerShop {
 		
 		sign = (Sign) sign.getBlock().getState();
 		chest = (Chest) chest.getBlock().getState();
+		
 		if (isMarket()) {
 			sign.setLine(0, ChatColor.translateAlternateColorCodes('&', infinite ? QuickMarket.getInstance().cfg.getString("markets.prefix-infinite"): QuickMarket.getInstance().cfg.getString("markets.prefix")));
 			sign.setLine(3, "");
@@ -160,8 +161,9 @@ public class PlayerShop {
 			sign.setLine(0, ChatColor.translateAlternateColorCodes('&', infinite ? QuickMarket.getInstance().cfg.getString("shops.prefix-infinite"): QuickMarket.getInstance().cfg.getString("shops.prefix")));
 			sign.setLine(3, infinite ? "": player);
 		}
+		
 		sign.setLine(1, type.getSignMessage() + (type == ShopType.SELL_ALL ? "All": String.valueOf(amount)));
-		sign.setLine(2, "&2$" + (type == ShopType.SELL_ALL ? (DoubleHandler.getFancyDouble(price) + "/ea"): DoubleHandler.getFancyDouble(price)));
+		sign.setLine(2, ChatColor.translateAlternateColorCodes('&', "&2" + QuickMarket.getInstance().cfg.getString("options.money-symbol") + (type == ShopType.SELL_ALL ? (DoubleHandler.getFancyDouble(price) + "/ea"): DoubleHandler.getFancyDouble(price))));
 		sign.update();
 		
 		if (refreshItem) respawnItem();
@@ -602,7 +604,7 @@ public class PlayerShop {
 		}
 		
 		public String getSignMessage() {
-			return sign;
+			return ChatColor.translateAlternateColorCodes('&', sign);
 		}
 	}
 

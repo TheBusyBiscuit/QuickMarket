@@ -3,6 +3,7 @@ options:
   item-refresh-delay: 150
   item-nametags: true
   chunk-notifications: false
+  money-symbol: '$'
 shops:
   prefix: '&8[&6Shop&8]'
   prefix-infinite: '&8[&4AdminShop&8]'
