@@ -289,7 +289,7 @@ public class PlayerShop {
 						
 						QuickMarket.getInstance().economy.withdrawPlayer(p, money);
 						
-						QuickMarket.getInstance().local.sendTranslation(p, "shops.bought", false, new Variable("{MONEY}", "$" + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)));
+						QuickMarket.getInstance().local.sendTranslation(p, "shops.bought", false, new Variable("{MONEY}", QuickMarket.getInstance().cfg.getString("options.money-symbol") + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)));
 						refreshTmp(p.getName(), money, amount, ShopType.BUY);
 						
 						int a = amount % 64 == 0 ? amount / 64: amount / 64 + 1;
@@ -432,7 +432,7 @@ public class PlayerShop {
 							// Check if the Player can actually sell anything at all
 							if (quantity > 0) {
 								// Get all Items which did not fit in the Chest
-								Map<Integer, ItemStack> rest = infinite ? new HashMap<Integer, ItemStack>(): chest.getInventory().addItem(new CustomItem(stack, quantity));
+								Map<Integer, ItemStack> rest = infinite ? new HashMap<>(): chest.getInventory().addItem(new CustomItem(stack, quantity));
 								if (rest.isEmpty()) {
 									if (stack.getAmount() - quantity > 0) backpack.setItem(j, new CustomItem(stack, stack.getAmount() - quantity));
 									else backpack.setItem(j, null);
@@ -507,7 +507,7 @@ public class PlayerShop {
 			// Check if the Player sold something
 			if (amount > 0) {
 				// Send a Message to the Player
-				QuickMarket.getInstance().local.sendTranslation(p, "shops.sold", false, new Variable("{MONEY}", "$" + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)));
+				QuickMarket.getInstance().local.sendTranslation(p, "shops.sold", false, new Variable("{MONEY}", QuickMarket.getInstance().cfg.getString("options.money-symbol") + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)));
 				// Send a Message to the Shop Owner later
 				refreshTmp(p.getName(), money, amount, ShopType.SELL);
 				// Reward the Player with Money
@@ -697,8 +697,10 @@ public class PlayerShop {
 			return false;
 		});
 		
+		String symbol = QuickMarket.getInstance().cfg.getString("options.money-symbol");
+		
 		try {
-			String total = type.equals(ShopType.BUY) ? ("&rTotal Income: &6$" + DoubleHandler.getFancyDouble(price * used)): ("&rTotal Outgoings: &6$" + DoubleHandler.getFancyDouble(price * used));
+			String total = type.equals(ShopType.BUY) ? ("&rTotal Income: &6" + symbol + DoubleHandler.getFancyDouble(price * used)): ("&rTotal Outgoings: &6" + symbol + DoubleHandler.getFancyDouble(price * used));
 			menu.addItem(3, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTQ2ZGNkYjAzYzRmZTI1ZDRiYzA2MTdlMmQ5MjZlZDkxY2IzZGE0OWQ3YjFmODlhZTlmMjAyMDE2M2ExZWY5In19fQ=="), "&7Usage", "", "&rThis Shop has been used", "&ra total Amount of &e" + used + " &rtimes", total));
 			menu.addMenuClickHandler(3, (player, slot, item, action) -> false);
 			
@@ -732,31 +734,31 @@ public class PlayerShop {
 			});
 		}
 		
-		menu.addItem(9, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+0.1", "&7Shift + Left Click: &r+1", "&7Right Click: &r-0.1", "&7Shift + Right Click: &r-1"));
+		menu.addItem(9, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+0.1", "&7Shift + Left Click: &r+1", "&7Right Click: &r-0.1", "&7Shift + Right Click: &r-1"));
 		menu.addMenuClickHandler(9, getPriceHandler(0.1, 1));
 		
-		menu.addItem(10, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10", "&7Shift + Left Click: &r+100", "&7Right Click: &r-10", "&7Shift + Right Click: &r-100"));
+		menu.addItem(10, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10", "&7Shift + Left Click: &r+100", "&7Right Click: &r-10", "&7Shift + Right Click: &r-100"));
 		menu.addMenuClickHandler(10, getPriceHandler(10, 100));
 		
-		menu.addItem(11, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1K", "&7Shift + Left Click: &r+10K", "&7Right Click: &r-1K", "&7Shift + Right Click: &r-10K"));
+		menu.addItem(11, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1K", "&7Shift + Left Click: &r+10K", "&7Right Click: &r-1K", "&7Shift + Right Click: &r-10K"));
 		menu.addMenuClickHandler(11, getPriceHandler(1000, 10000));
 		
-		menu.addItem(12, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+100K", "&7Shift + Left Click: &r+1M", "&7Right Click: &r-100K", "&7Shift + Right Click: &r-1M"));
+		menu.addItem(12, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+100K", "&7Shift + Left Click: &r+1M", "&7Right Click: &r-100K", "&7Shift + Right Click: &r-1M"));
 		menu.addMenuClickHandler(12, getPriceHandler(100000, 1000000));
 		
-		menu.addItem(13, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10M", "&7Shift + Left Click: &r+100M", "&7Right Click: &r-10M", "&7Shift + Right Click: &r-100M"));
+		menu.addItem(13, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10M", "&7Shift + Left Click: &r+100M", "&7Right Click: &r-10M", "&7Shift + Right Click: &r-100M"));
 		menu.addMenuClickHandler(13, getPriceHandler(10000000, 100000000));
 		
-		menu.addItem(14, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1B", "&7Shift + Left Click: &r+10B", "&7Right Click: &r-1B", "&7Shift + Right Click: &r-10B"));
+		menu.addItem(14, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1B", "&7Shift + Left Click: &r+10B", "&7Right Click: &r-1B", "&7Shift + Right Click: &r-10B"));
 		menu.addMenuClickHandler(14, getPriceHandler(1000000000, 10000000000D));
 		
-		menu.addItem(15, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+100B", "&7Shift + Left Click: &r+1T", "&7Right Click: &r-100B", "&7Shift + Right Click: &r-1T"));
+		menu.addItem(15, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+100B", "&7Shift + Left Click: &r+1T", "&7Right Click: &r-100B", "&7Shift + Right Click: &r-1T"));
 		menu.addMenuClickHandler(15, getPriceHandler(100000000000D, 1000000000000D));
 		
-		menu.addItem(16, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10T", "&7Shift + Left Click: &r+100T", "&7Right Click: &r-10T", "&7Shift + Right Click: &r-100T"));
+		menu.addItem(16, new CustomItem(Material.GOLD_INGOT, "&7Price: &6"+ symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10T", "&7Shift + Left Click: &r+100T", "&7Right Click: &r-10T", "&7Shift + Right Click: &r-100T"));
 		menu.addMenuClickHandler(16, getPriceHandler(10000000000000D, 100000000000000D));
 		
-		menu.addItem(17, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1Q", "&7Shift + Left Click: &r+10Q", "&7Right Click: &r-1Q", "&7Shift + Right Click: &r-10Q"));
+		menu.addItem(17, new CustomItem(Material.GOLD_INGOT, "&7Price: &6" + symbol + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1Q", "&7Shift + Left Click: &r+10Q", "&7Right Click: &r-1Q", "&7Shift + Right Click: &r-10Q"));
 		menu.addMenuClickHandler(17, getPriceHandler(1000000000000000D, 10000000000000000D));
 		
 		menu.open(p);
