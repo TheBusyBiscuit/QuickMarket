@@ -1,11 +1,13 @@
 name: QuickMarket
-version: 1.2.4
+version: 1.3
 author: mrCookieSlime
-website: http://mrcookieslime.github.io/
+website: http://thebusybiscuit.github.io/
 depend: [Vault]
-softdepend: [CS-CoreLib, ClearLag, PrisonUtils]
+softdepend: [CS-CoreLib, PrisonUtils]
 
 main: me.mrCookieSlime.QuickMarket.QuickMarket
+
+api-version: 1.13
 
 permissions:
   QuickMarket.shop.infinite:

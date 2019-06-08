@@ -38,7 +38,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.material.MaterialData;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
@@ -160,7 +159,7 @@ public class PlayerShop {
 			sign.setLine(3, infinite ? "": player);
 		}
 		sign.setLine(1, type.getSignMessage() + (type == ShopType.SELL_ALL ? "All": String.valueOf(amount)));
-		sign.setLine(2, "§2$" + (type == ShopType.SELL_ALL ? (DoubleHandler.getFancyDouble(price) + "/ea"): DoubleHandler.getFancyDouble(price)));
+		sign.setLine(2, "&2$" + (type == ShopType.SELL_ALL ? (DoubleHandler.getFancyDouble(price) + "/ea"): DoubleHandler.getFancyDouble(price)));
 		sign.update();
 		
 		if (refreshItem) respawnItem();
@@ -174,7 +173,7 @@ public class PlayerShop {
 			display.removeMetadata("quickmarket_item", QuickMarket.getInstance());
 			display.remove();
 		}
-		display = chest.getWorld().dropItem(chest.getLocation().add(0.5, 1.2, 0.5), new CustomItem(new CustomItem(item, "§6§lQuickMarket Display Item §e" + CSCoreLib.randomizer().nextInt(10000)), 1));
+		display = chest.getWorld().dropItem(chest.getLocation().add(0.5, 1.2, 0.5), new CustomItem(new CustomItem(item, "&6&lQuickMarket Display Item &e" + CSCoreLib.randomizer().nextInt(10000)), 1));
 		display.setVelocity(new Vector(0, 0.1, 0));
 		if (QuickMarket.getInstance().cfg.getBoolean("options.item-nametags")) {
 			display.setCustomName(StringUtils.formatItemName(item, false));
@@ -531,9 +530,9 @@ public class PlayerShop {
 	}
 
 	private void openBuyMenu(Player p, final int amount) {
-		ChestMenu menu = new ChestMenu("§9How many do you want to buy?");
+		ChestMenu menu = new ChestMenu("&9How many do you want to buy?");
 		
-		menu.addItem(3, new CustomItem(new MaterialData(Material.REDSTONE), "§7Amount: §b" + amount, "", "§7Left Click: §r+1", "§7Shift + Left Click: §r+16", "§7Right Click: §r-1", "§7Shift + Right Click: §r-16"));
+		menu.addItem(3, new CustomItem(Material.REDSTONE, "&7Amount: &b" + amount, "", "&7Left Click: &r+1", "&7Shift + Left Click: &r+16", "&7Right Click: &r-1", "&7Shift + Right Click: &r-16"));
 		menu.addMenuClickHandler(3, new MenuClickHandler() {
 			
 			@Override
@@ -547,7 +546,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(4, new CustomItem(this.item.getData(), "§r" + StringUtils.formatItemName(item, false), "", "§7Left Click: §rBuy §e" + amount + " " + StringUtils.formatItemName(item, false)));
+		menu.addItem(4, new CustomItem(this.item.getData(), "&r" + StringUtils.formatItemName(item, false), "", "&7Left Click: &rBuy &e" + amount + " " + StringUtils.formatItemName(item, false)));
 		menu.addMenuClickHandler(4, new MenuClickHandler() {
 			
 			@Override
@@ -557,7 +556,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(5, new CustomItem(new MaterialData(Material.REDSTONE), "§7Amount: §b" + amount, "", "§7Left Click: §r+32", "§7Shift + Left Click: §r+64", "§7Right Click: §r-32", "§7Shift + Right Click: §r-64"));
+		menu.addItem(5, new CustomItem(Material.REDSTONE, "&7Amount: &b" + amount, "", "&7Left Click: &r+32", "&7Shift + Left Click: &r+64", "&7Right Click: &r-32", "&7Shift + Right Click: &r-64"));
 		menu.addMenuClickHandler(5, new MenuClickHandler() {
 			
 			@Override
@@ -598,9 +597,9 @@ public class PlayerShop {
 
 	public enum ShopType {
 		
-		BUY("§lBuy: §r"),
-		SELL("§lSell: §r"),
-		SELL_ALL("§lSell: §r");
+		BUY("&lBuy: &r"),
+		SELL("&lSell: &r"),
+		SELL_ALL("&lSell: &r");
 		
 		String sign;
 		
@@ -656,7 +655,7 @@ public class PlayerShop {
 	public void openEditor(Player p) {
 		setEditMode(true);
 		p.playSound(p.getLocation(), Soundboard.getLegacySounds("BLOCK_WOOD_BUTTON_CLICK_ON", "WOOD_CLICK"), 1F, 1F);
-		ChestMenu menu = new ChestMenu("§eShop Editor");
+		ChestMenu menu = new ChestMenu("&eShop Editor");
 		
 		menu.addMenuCloseHandler(new MenuCloseHandler() {
 			
@@ -666,7 +665,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(0, new CustomItem(item.getData(), "§r" + StringUtils.formatItemName(item, false), "", "§7Left Click: §rChange Item to the Item held in your Hand"));
+		menu.addItem(0, new CustomItem(item.getData(), "&r" + StringUtils.formatItemName(item, false), "", "&7Left Click: &rChange Item to the Item held in your Hand"));
 		menu.addMenuClickHandler(0, new MenuClickHandler() {
 			
 			@SuppressWarnings("deprecation")
@@ -681,7 +680,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(1, new CustomItem(new MaterialData(type == ShopType.SELL ? Material.DIAMOND: (type.equals(ShopType.SELL_ALL) ? Material.GOLD_INGOT: Material.EMERALD)), "§rType: §b" + StringUtils.format(type.toString()), "", "§7Left Click: §rToggle State"));
+		menu.addItem(1, new CustomItem(type == ShopType.SELL ? Material.DIAMOND: (type.equals(ShopType.SELL_ALL) ? Material.GOLD_INGOT: Material.EMERALD), "&rType: &b" + StringUtils.format(type.toString()), "", "&7Left Click: &rToggle State"));
 		menu.addMenuClickHandler(1, new MenuClickHandler() {
 			
 			@Override
@@ -693,7 +692,7 @@ public class PlayerShop {
 		});
 		
 		if (type != ShopType.SELL_ALL) {
-			menu.addItem(2, new CustomItem(new MaterialData(Material.GLOWSTONE_DUST), "§7Amount: §b" + amount, "", "§7Left Click: §r+1", "§7Shift + Left Click: §r+16", "§7Right Click: §r-1", "§7Shift + Right Click: §r-16"));
+			menu.addItem(2, new CustomItem(Material.GLOWSTONE_DUST, "&7Amount: &b" + amount, "", "&7Left Click: &r+1", "&7Shift + Left Click: &r+16", "&7Right Click: &r-1", "&7Shift + Right Click: &r-16"));
 			menu.addMenuClickHandler(2, new MenuClickHandler() {
 				
 				@Override
@@ -709,7 +708,7 @@ public class PlayerShop {
 			});
 		}
 		else {
-			menu.addItem(2, new CustomItem(new MaterialData(Material.GLOWSTONE_DUST), "§7Amount: §bAll"));
+			menu.addItem(2, new CustomItem(Material.GLOWSTONE_DUST, "&7Amount: &bAll"));
 			menu.addMenuClickHandler(2, new MenuClickHandler() {
 				
 				@Override
@@ -719,7 +718,7 @@ public class PlayerShop {
 			});
 		}
 		
-		menu.addItem(isMarket() ? 7: 5, new CustomItem(new MaterialData(Material.WATCH), "§eSchedule"));
+		menu.addItem(isMarket() ? 7: 5, new CustomItem(Material.CLOCK, "&eSchedule"));
 		menu.addMenuClickHandler(isMarket() ? 7: 5, new MenuClickHandler() {
 			
 			@Override
@@ -734,8 +733,8 @@ public class PlayerShop {
 		});
 		
 		try {
-			String total = type.equals(ShopType.BUY) ? ("§rTotal Income: §6$" + DoubleHandler.getFancyDouble(price * used)): ("§rTotal Outgoings: §6$" + DoubleHandler.getFancyDouble(price * used));
-			menu.addItem(3, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTQ2ZGNkYjAzYzRmZTI1ZDRiYzA2MTdlMmQ5MjZlZDkxY2IzZGE0OWQ3YjFmODlhZTlmMjAyMDE2M2ExZWY5In19fQ=="), "§7Usage", "", "§rThis Shop has been used", "§ra total Amount of §e" + used + " §rtimes", total));
+			String total = type.equals(ShopType.BUY) ? ("&rTotal Income: &6$" + DoubleHandler.getFancyDouble(price * used)): ("&rTotal Outgoings: &6$" + DoubleHandler.getFancyDouble(price * used));
+			menu.addItem(3, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTQ2ZGNkYjAzYzRmZTI1ZDRiYzA2MTdlMmQ5MjZlZDkxY2IzZGE0OWQ3YjFmODlhZTlmMjAyMDE2M2ExZWY5In19fQ=="), "&7Usage", "", "&rThis Shop has been used", "&ra total Amount of &e" + used + " &rtimes", total));
 			menu.addMenuClickHandler(3, new MenuClickHandler() {
 				
 				@Override
@@ -745,7 +744,7 @@ public class PlayerShop {
 			});
 			
 			if (p.hasPermission("QuickMarket.shop.infinite")) {
-				menu.addItem(6, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjMzNjQxMWUyMWJhNWJhZTQxZGE0ZDBkYTIzYjcxOTExOGYxYzc5YjYxYzMwYmJmMGE1YWNhZjQ1M2ExYSJ9fX0="), "§rInfinite: " + (infinite ? "§2§l\u2714": "§4§l\u2718"), "§c§lAdmin ONLY", "", "§7Left Click: §rToggle State"));
+				menu.addItem(6, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjMzNjQxMWUyMWJhNWJhZTQxZGE0ZDBkYTIzYjcxOTExOGYxYzc5YjYxYzMwYmJmMGE1YWNhZjQ1M2ExYSJ9fX0="), "&rInfinite: " + (infinite ? "&2&l\u2714": "&4&l\u2718"), "&c&lAdmin ONLY", "", "&7Left Click: &rToggle State"));
 				menu.addMenuClickHandler(6, new MenuClickHandler() {
 					
 					@Override
@@ -758,7 +757,7 @@ public class PlayerShop {
 				});
 			}
 			
-			menu.addItem(isMarket() ? 8: 7, new CustomItem(CustomSkull.getItem(disabled ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "§rEnabled: " + (disabled ? "§4§l\u2718": "§2§l\u2714"), "", "§7Left Click: §rToggle State"));
+			menu.addItem(isMarket() ? 8: 7, new CustomItem(CustomSkull.getItem(disabled ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "&rEnabled: " + (disabled ? "&4&l\u2718": "&2&l\u2714"), "", "&7Left Click: &rToggle State"));
 			menu.addMenuClickHandler(isMarket() ? 8: 7, new MenuClickHandler() {
 				
 				@Override
@@ -774,7 +773,7 @@ public class PlayerShop {
 		}
 		
 		if (!isMarket()) {
-			menu.addItem(8, new CustomItem(new MaterialData(Material.BARRIER), "§4Delete Shop", "", "§rClick to delete your Shop"));
+			menu.addItem(8, new CustomItem(Material.BARRIER, "&4Delete Shop", "", "&rClick to delete your Shop"));
 			menu.addMenuClickHandler(8, new MenuClickHandler() {
 				
 				@Override
@@ -786,7 +785,7 @@ public class PlayerShop {
 			});
 		}
 		
-		menu.addItem(9, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+0.1", "§7Shift + Left Click: §r+1", "§7Right Click: §r-0.1", "§7Shift + Right Click: §r-1"));
+		menu.addItem(9, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+0.1", "&7Shift + Left Click: &r+1", "&7Right Click: &r-0.1", "&7Shift + Right Click: &r-1"));
 		menu.addMenuClickHandler(9, new MenuClickHandler() {
 			
 			@Override
@@ -806,7 +805,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(10, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+10", "§7Shift + Left Click: §r+100", "§7Right Click: §r-10", "§7Shift + Right Click: §r-100"));
+		menu.addItem(10, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10", "&7Shift + Left Click: &r+100", "&7Right Click: &r-10", "&7Shift + Right Click: &r-100"));
 		menu.addMenuClickHandler(10, new MenuClickHandler() {
 			
 			@Override
@@ -826,7 +825,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(11, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+1K", "§7Shift + Left Click: §r+10K", "§7Right Click: §r-1K", "§7Shift + Right Click: §r-10K"));
+		menu.addItem(11, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1K", "&7Shift + Left Click: &r+10K", "&7Right Click: &r-1K", "&7Shift + Right Click: &r-10K"));
 		menu.addMenuClickHandler(11, new MenuClickHandler() {
 			
 			@Override
@@ -846,7 +845,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(12, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+100K", "§7Shift + Left Click: §r+1M", "§7Right Click: §r-100K", "§7Shift + Right Click: §r-1M"));
+		menu.addItem(12, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+100K", "&7Shift + Left Click: &r+1M", "&7Right Click: &r-100K", "&7Shift + Right Click: &r-1M"));
 		menu.addMenuClickHandler(12, new MenuClickHandler() {
 			
 			@Override
@@ -866,7 +865,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(13, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+10M", "§7Shift + Left Click: §r+100M", "§7Right Click: §r-10M", "§7Shift + Right Click: §r-100M"));
+		menu.addItem(13, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10M", "&7Shift + Left Click: &r+100M", "&7Right Click: &r-10M", "&7Shift + Right Click: &r-100M"));
 		menu.addMenuClickHandler(13, new MenuClickHandler() {
 			
 			@Override
@@ -886,7 +885,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(14, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+1B", "§7Shift + Left Click: §r+10B", "§7Right Click: §r-1B", "§7Shift + Right Click: §r-10B"));
+		menu.addItem(14, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1B", "&7Shift + Left Click: &r+10B", "&7Right Click: &r-1B", "&7Shift + Right Click: &r-10B"));
 		menu.addMenuClickHandler(14, new MenuClickHandler() {
 			
 			@Override
@@ -906,7 +905,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(15, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+100B", "§7Shift + Left Click: §r+1T", "§7Right Click: §r-100B", "§7Shift + Right Click: §r-1T"));
+		menu.addItem(15, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+100B", "&7Shift + Left Click: &r+1T", "&7Right Click: &r-100B", "&7Shift + Right Click: &r-1T"));
 		menu.addMenuClickHandler(15, new MenuClickHandler() {
 			
 			@Override
@@ -926,7 +925,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(16, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+10T", "§7Shift + Left Click: §r+100T", "§7Right Click: §r-10T", "§7Shift + Right Click: §r-100T"));
+		menu.addItem(16, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+10T", "&7Shift + Left Click: &r+100T", "&7Right Click: &r-10T", "&7Shift + Right Click: &r-100T"));
 		menu.addMenuClickHandler(16, new MenuClickHandler() {
 			
 			@Override
@@ -946,7 +945,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(17, new CustomItem(new MaterialData(Material.GOLD_INGOT), "§7Price: §6$" + DoubleHandler.getFancyDouble(price), "", "§7Left Click: §r+1Q", "§7Shift + Left Click: §r+10Q", "§7Right Click: §r-1Q", "§7Shift + Right Click: §r-10Q"));
+		menu.addItem(17, new CustomItem(Material.GOLD_INGOT, "&7Price: &6$" + DoubleHandler.getFancyDouble(price), "", "&7Left Click: &r+1Q", "&7Shift + Left Click: &r+10Q", "&7Right Click: &r-1Q", "&7Shift + Right Click: &r-10Q"));
 		menu.addMenuClickHandler(17, new MenuClickHandler() {
 			
 			@Override
@@ -970,7 +969,7 @@ public class PlayerShop {
 	}
 	
 	public void openSchedule(Player p) throws Exception {
-		ChestMenu menu = new ChestMenu("§eSchedule §8- Time: " + getCurrentHour() + ":XX");
+		ChestMenu menu = new ChestMenu("&eSchedule &8- Time: " + getCurrentHour() + ":XX");
 		
 		menu.addMenuOpeningHandler(new MenuOpeningHandler() {
 			
@@ -980,7 +979,7 @@ public class PlayerShop {
 			}
 		});
 		
-		menu.addItem(1, new CustomItem(new MaterialData(Material.SIGN), "§e< Back to the Editor", "", "§7Left Click: §rGo Back"));
+		menu.addItem(1, new CustomItem(Material.OAK_SIGN, "&e< Back to the Editor", "", "&7Left Click: &rGo Back"));
 		menu.addMenuClickHandler(1, new MenuClickHandler() {
 			
 			@Override
@@ -991,7 +990,7 @@ public class PlayerShop {
 		});
 		
 		for (int i = 1; i <= 24; i++) {
-			menu.addItem(i + 8, new CustomItem(CustomSkull.getItem(schedule[i - 1] ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "§rEnabled at " + i + ":XX " + (schedule[i - 1] ? "§4§l\u2718": "§2§l\u2714"), "", "§7Left Click: §rToggle State"));
+			menu.addItem(i + 8, new CustomItem(CustomSkull.getItem(schedule[i - 1] ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "&rEnabled at " + i + ":XX " + (schedule[i - 1] ? "&4&l\u2718": "&2&l\u2714"), "", "&7Left Click: &rToggle State"));
 			menu.addMenuClickHandler(i + 8, new MenuClickHandler() {
 				
 				@Override

@@ -135,8 +135,6 @@ public class QuickMarket extends JavaPlugin {
 				clearlag = getServer().getPluginManager().isPluginEnabled("ClearLag");
 				backpacks = getServer().getPluginManager().isPluginEnabled("PrisonUtils");
 				
-				if (clearlag) new ClearLaggIntegration(this);
-				
 				getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
 					
 					@Override
