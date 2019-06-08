@@ -14,7 +14,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.block.Block;
-import org.bukkit.block.Chest;
+import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
@@ -57,7 +57,7 @@ public class PlayerShop {
 	double price;
 	ItemStack item;
 	Item display;
-	Chest chest;
+	Container chest;
 	Sign sign;
 	int amount;
 	long used;
@@ -83,7 +83,7 @@ public class PlayerShop {
 	
 	public PlayerShop(Block sign, Block chest, Player p, int amount, double price, ShopType type) {
 		try {
-			this.chest = (Chest) chest.getState();
+			this.chest = (Container) chest.getState();
 			this.sign = (Sign) sign.getState();
 			this.type = type;
 			this.owner = p.getUniqueId();
@@ -114,7 +114,7 @@ public class PlayerShop {
 
 	public PlayerShop(Config cfg) {
 		try {
-			chest = (Chest) cfg.getLocation("chest").getWorld().getBlockAt(cfg.getLocation("chest")).getState();
+			chest = (Container) cfg.getLocation("chest").getWorld().getBlockAt(cfg.getLocation("chest")).getState();
 			sign = (Sign) cfg.getLocation("sign").getWorld().getBlockAt(cfg.getLocation("sign")).getState();
 			type = ShopType.valueOf(cfg.getString("type"));
 			
@@ -143,14 +143,14 @@ public class PlayerShop {
 	public void update(boolean refreshItem) {
 		if (!loaded) return;
 		
-		if (!(chest.getBlock().getState() instanceof Chest) || !(sign.getBlock().getState() instanceof Sign)) {
+		if (!(chest.getBlock().getState() instanceof Container) || !(sign.getBlock().getState() instanceof Sign)) {
 			System.err.println("[QuickMarket] A Shop's Chest/Sign is no longer existing. Emergency Deletion initiated");
 			delete();
 			return;
 		}
 		
 		sign = (Sign) sign.getBlock().getState();
-		chest = (Chest) chest.getBlock().getState();
+		chest = (Container) chest.getBlock().getState();
 		
 		if (isMarket()) {
 			sign.setLine(0, ChatColor.translateAlternateColorCodes('&', infinite ? QuickMarket.getInstance().cfg.getString("markets.prefix-infinite"): QuickMarket.getInstance().cfg.getString("markets.prefix")));
@@ -193,7 +193,7 @@ public class PlayerShop {
 			update(false);
 			return;
 		}
-		if (!(chest.getBlock().getState() instanceof Chest) || !(sign.getBlock().getState() instanceof Sign)) {
+		if (!(chest.getBlock().getState() instanceof Container) || !(sign.getBlock().getState() instanceof Sign)) {
 			System.err.println("[QuickMarket] A Shop's Chest/Sign is no longer existing. Emergency Deletion initiated");
 			delete();
 			return;

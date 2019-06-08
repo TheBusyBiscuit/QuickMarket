@@ -1,6 +1,5 @@
 package me.mrCookieSlime.QuickMarket;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,9 +7,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
+import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.Player;
@@ -37,29 +36,6 @@ public class MarketListener implements Listener {
 	public MarketListener(QuickMarket plugin) {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
-	
-	private final List<Material> chests = Arrays.asList(
-		Material.CHEST, 
-		Material.TRAPPED_CHEST, 
-		Material.SHULKER_BOX, 
-		
-		Material.WHITE_SHULKER_BOX, 
-		Material.ORANGE_SHULKER_BOX, 
-		Material.MAGENTA_SHULKER_BOX, 
-		Material.LIGHT_BLUE_SHULKER_BOX, 
-		Material.YELLOW_SHULKER_BOX, 
-		Material.LIME_SHULKER_BOX, 
-		Material.PINK_SHULKER_BOX, 
-		Material.GRAY_SHULKER_BOX, 
-		Material.LIGHT_GRAY_SHULKER_BOX, 
-		Material.CYAN_SHULKER_BOX, 
-		Material.PURPLE_SHULKER_BOX, 
-		Material.BLUE_SHULKER_BOX, 
-		Material.BROWN_SHULKER_BOX, 
-		Material.GREEN_SHULKER_BOX, 
-		Material.RED_SHULKER_BOX, 
-		Material.BLACK_SHULKER_BOX
-	);
 	
 	private final BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
 	private final Map<UUID, Consumer<Block>> link = new HashMap<UUID, Consumer<Block>>();
@@ -88,7 +64,7 @@ public class MarketListener implements Listener {
 					}
 				}
 			}
-			else if (chests.contains(e.getClickedBlock().getType())) {
+			else if (e.getClickedBlock().getState() instanceof Container) {
 				ShopProtectionLevel level = isChestProtected(e.getPlayer(), e.getClickedBlock());
 				if (level.equals(ShopProtectionLevel.NO_ACCESS)) {
 					e.setCancelled(true);
@@ -230,7 +206,7 @@ public class MarketListener implements Listener {
 				if (e.getPlayer().hasPermission("QuickMarket.shop.create")) {
 					Block chest = e.getBlock().getRelative(((WallSign) sign.getBlockData()).getFacing().getOppositeFace());
 					
-					if (!chests.contains(chest.getType())) {
+					if (!(chest.getState() instanceof Container)) {
 						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-chest", true);
 						e.setCancelled(true);
 						return;
@@ -281,7 +257,8 @@ public class MarketListener implements Listener {
 			else if (e.getLine(0).equalsIgnoreCase(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', QuickMarket.getInstance().cfg.getString("markets.prefix"))))) {
 				if (e.getPlayer().hasPermission("QuickMarket.market.admin")) {
 					Block chest = e.getBlock().getRelative(((WallSign) sign.getBlockData()).getFacing().getOppositeFace());
-					if (!chests.contains(chest.getType())) {
+
+					if (!(chest.getState() instanceof Container)) {
 						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-chest", true);
 						e.setCancelled(true);
 						return;
