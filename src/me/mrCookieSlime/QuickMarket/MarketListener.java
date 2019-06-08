@@ -29,8 +29,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import me.mrCookieSlime.QuickMarket.shop.MarketStand;
 import me.mrCookieSlime.QuickMarket.shop.PlayerMarket;
 import me.mrCookieSlime.QuickMarket.shop.PlayerShop;
-import me.mrCookieSlime.QuickMarket.shop.PlayerShop.ShopType;
 import me.mrCookieSlime.QuickMarket.shop.ShopProtectionLevel;
+import me.mrCookieSlime.QuickMarket.shop.ShopType;
 
 public class MarketListener implements Listener {
 	
@@ -53,6 +53,7 @@ public class MarketListener implements Listener {
 		else if (e.getAction() == Action.RIGHT_CLICK_BLOCK || e.getAction() == Action.LEFT_CLICK_BLOCK) {
 			if (e.getClickedBlock().getBlockData() instanceof WallSign) {
 				PlayerShop shop = PlayerShop.signs.get(e.getClickedBlock());
+				
 				if (shop != null) {
 					if (shop.isOwner(e.getPlayer())) shop.openEditor(e.getPlayer());
 					else shop.handleTransaction(e.getPlayer(), 0);
@@ -72,7 +73,7 @@ public class MarketListener implements Listener {
 				ShopProtectionLevel level = isChestProtected(e.getPlayer(), e.getClickedBlock());
 				if (level.equals(ShopProtectionLevel.NO_ACCESS)) {
 					e.setCancelled(true);
-					e.getPlayer().sendMessage("�4You are not permitted to modify this Shop");
+					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-access", true);
 				}
 			}
 		}
@@ -161,6 +162,7 @@ public class MarketListener implements Listener {
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent e) {
 		PlayerShop shop = PlayerShop.chests.get(e.getBlock());
+		
 		if (shop != null) {
 			e.setCancelled(true);
 			if (shop.isOwner(e.getPlayer())) {

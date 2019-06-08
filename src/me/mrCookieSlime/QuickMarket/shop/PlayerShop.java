@@ -31,7 +31,6 @@ import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Variable;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu.MenuClickHandler;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ClickAction;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.InvUtils;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
 import me.mrCookieSlime.CSCoreLibPlugin.general.Math.DoubleHandler;
@@ -51,22 +50,21 @@ public class PlayerShop {
 	public static Map<String, List<PlayerShop>> chunks = new HashMap<>();
 	public static Map<UUID, ShopSummary> summaries = new HashMap<>();
 	
-	ShopType type;
-	UUID owner = null;
-	String player = null;
-	double price;
-	ItemStack item;
-	Item display;
-	Container chest;
-	Sign sign;
-	int amount;
-	long used;
-	boolean infinite, disabled;
-	boolean[] schedule = new boolean[24];
+	protected ShopType type;
+	protected UUID owner = null;
+	protected String player = null;
+	protected double price;
+	protected ItemStack item;
+	protected Item display;
+	protected Container chest;
+	protected Sign sign;
+	protected int amount;
+	protected long used;
+	protected boolean infinite, disabled;
+	protected boolean[] schedule = new boolean[24];
 	
-	boolean loaded = true;
-	
-	private boolean editing = false;
+	protected boolean loaded = true;
+	protected boolean editing = false;
 	
 	public ShopSummary getSummary() {
 		if (!summaries.containsKey(owner)) summaries.put(owner, new ShopSummary(owner));
@@ -177,12 +175,15 @@ public class PlayerShop {
 			display.removeMetadata("quickmarket_item", QuickMarket.getInstance());
 			display.remove();
 		}
+		
 		display = chest.getWorld().dropItem(chest.getLocation().add(0.5, 1.2, 0.5), new CustomItem(new CustomItem(item, "&6&lQuickMarket Display Item &e" + CSCoreLib.randomizer().nextInt(10000)), 1));
 		display.setVelocity(new Vector(0, 0.1, 0));
+		
 		if (QuickMarket.getInstance().cfg.getBoolean("options.item-nametags")) {
 			display.setCustomName(StringUtils.formatItemName(item, false));
 			display.setCustomNameVisible(true);
 		}
+		
 		display.setMetadata("no_pickup", new FixedMetadataValue(QuickMarket.getInstance(), true));
 		display.setMetadata("quickmarket_item", new FixedMetadataValue(QuickMarket.getInstance(), true));
 	}
@@ -193,15 +194,18 @@ public class PlayerShop {
 			update(false);
 			return;
 		}
+		
 		if (!(chest.getBlock().getState() instanceof Container) || !(sign.getBlock().getState() instanceof Sign)) {
 			System.err.println("[QuickMarket] A Shop's Chest/Sign is no longer existing. Emergency Deletion initiated");
 			delete();
 			return;
 		}
+		
 		if (!isOpen()) {
 			QuickMarket.getInstance().local.sendTranslation(p, "shops.disabled", true);
 			return;
 		}
+		
 		if (editing) {
 			QuickMarket.getInstance().local.sendTranslation(p, "shops.editing", true);
 			return;
@@ -534,20 +538,16 @@ public class PlayerShop {
 	}
 
 	private void openBuyMenu(Player p, final int amount) {
-		ChestMenu menu = new ChestMenu("&9How many do you want to buy?");
+		ChestMenu menu = new ChestMenu("&9How many Items do you want to buy?");
 		
 		menu.addItem(3, new CustomItem(Material.REDSTONE, "&7Amount: &b" + amount, "", "&7Left Click: &r+1", "&7Shift + Left Click: &r+16", "&7Right Click: &r-1", "&7Shift + Right Click: &r-16"));
-		menu.addMenuClickHandler(3, new MenuClickHandler() {
-			
-			@Override
-			public boolean onClick(Player p, int slot, ItemStack item, ClickAction action) {
-				int i = amount;
-				if (action.isRightClicked()) i = i - (action.isShiftClicked() ? 16: 1);
-				else i = i + (action.isShiftClicked() ? 16: 1);
-				if (i < 1) i = 1;
-				openBuyMenu(p, i);
-				return false;
-			}
+		menu.addMenuClickHandler(3, (player, slot, item, action) -> {
+			int i = amount;
+			if (action.isRightClicked()) i = i - (action.isShiftClicked() ? 16: 1);
+			else i = i + (action.isShiftClicked() ? 16: 1);
+			if (i < 1) i = 1;
+			openBuyMenu(p, i);
+			return false;
 		});
 		
 		menu.addItem(4, new CustomItem(this.item.getType(), "&r" + StringUtils.formatItemName(item, false), "", "&7Left Click: &rBuy &e" + amount + " " + StringUtils.formatItemName(item, false)));
@@ -591,23 +591,6 @@ public class PlayerShop {
 		}
 	}
 
-	public static enum ShopType {
-		
-		BUY("&lBuy: &r"),
-		SELL("&lSell: &r"),
-		SELL_ALL("&lSell: &r");
-		
-		String sign;
-		
-		private ShopType(String string) {
-			this.sign = string;
-		}
-		
-		public String getSignMessage() {
-			return ChatColor.translateAlternateColorCodes('&', sign);
-		}
-	}
-
 	public void store() {
 		if (display != null) {
 			display.remove();
@@ -616,6 +599,7 @@ public class PlayerShop {
 		if (new File("data-storage/QuickMarket/shops/" + chest.getWorld().getUID().toString() + "_" + chest.getBlock().getX() + "_" + chest.getBlock().getY() + "_" + chest.getBlock().getZ() + ".shop").exists()) {
 			new File("data-storage/QuickMarket/shops/" + chest.getWorld().getUID().toString() + "_" + chest.getBlock().getX() + "_" + chest.getBlock().getY() + "_" + chest.getBlock().getZ() + ".shop").delete();
 		}
+		
 		Config cfg = new Config("data-storage/QuickMarket/shops/" + chest.getWorld().getUID().toString() + ";" + chest.getBlock().getX() + ";" + chest.getBlock().getY() + ";" + chest.getBlock().getZ() + ".shop");
 		
 		try {
@@ -652,17 +636,17 @@ public class PlayerShop {
 	
 	public void openEditor(Player p) {
 		setEditMode(true);
-		p.playSound(p.getLocation(), Soundboard.getLegacySounds("BLOCK_WOOD_BUTTON_CLICK_ON", "WOOD_CLICK"), 1F, 1F);
+		p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1F, 1F);
 		ChestMenu menu = new ChestMenu("&eShop Editor");
 		
 		menu.addMenuCloseHandler((player) -> setEditMode(false));
 		
 		menu.addItem(0, new CustomItem(this.item.getType(), "&r" + StringUtils.formatItemName(item, false), "", "&7Left Click: &rChange Item to the Item held in your main Hand"));
 		menu.addMenuClickHandler(0, (player, slot, item, action) -> {
-			if (player.getInventory().getItemInMainHand() != null && p.getInventory().getItemInMainHand().getType() != null && p.getInventory().getItemInMainHand().getType() != Material.AIR) {
-				setItem(p.getInventory().getItemInMainHand());
+			if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() != null && player.getInventory().getItemInMainHand().getType() != Material.AIR) {
+				setItem(player.getInventory().getItemInMainHand());
 				update(true);
-				openEditor(p);
+				openEditor(player);
 			}
 			return false;
 		});
@@ -670,7 +654,7 @@ public class PlayerShop {
 		menu.addItem(1, new CustomItem(type == ShopType.SELL ? Material.DIAMOND: (type.equals(ShopType.SELL_ALL) ? Material.GOLD_INGOT: Material.EMERALD), "&rType: &b" + StringUtils.format(type.toString()), "", "&7Left Click: &rToggle State"));
 		menu.addMenuClickHandler(1, (player, slot, item, action) -> {
 			toggleType();
-			openEditor(p);
+			openEditor(player);
 			return false;
 		});
 		
@@ -682,7 +666,7 @@ public class PlayerShop {
 				else amount = amount + (action.isShiftClicked() ? 16: 1);
 				if (amount < 1) amount = 1;
 				setAmount(amount);
-				openEditor(p);
+				openEditor(player);
 				return false;
 			});
 		}
@@ -693,7 +677,7 @@ public class PlayerShop {
 		
 		menu.addItem(isMarket() ? 7: 5, new CustomItem(Material.CLOCK, "&eSchedule"));
 		menu.addMenuClickHandler(isMarket() ? 7: 5, (player, slot, item, action) -> {
-			openSchedule(p);
+			openSchedule(player);
 			return false;
 		});
 		
@@ -709,7 +693,7 @@ public class PlayerShop {
 				menu.addMenuClickHandler(6, (player, slot, item, action) -> {
 					toggleInfinity();
 					update(false);
-					openEditor(p);
+					openEditor(player);
 					return false;
 				});
 			}
@@ -806,7 +790,7 @@ public class PlayerShop {
 			
 			menu.addMenuClickHandler(i + 8, (player, slot, item, action) -> {
 				schedule[slot - 9] = !schedule[slot - 9];
-				openSchedule(p);
+				openSchedule(player);
 				return false;
 			});
 		}
@@ -902,6 +886,10 @@ public class PlayerShop {
 	}
 
 	public void setItem(ItemStack item) {
+		if (item == null || item.getType() == null || item.getType() == Material.AIR) {
+			throw new IllegalStateException("You cannot sell: " + item);
+		}
+		
 		this.item = item;
 	}
 
