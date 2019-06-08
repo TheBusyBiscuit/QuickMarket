@@ -24,6 +24,7 @@ import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
+import org.bukkit.inventory.EquipmentSlot;
 
 import me.mrCookieSlime.QuickMarket.shop.MarketStand;
 import me.mrCookieSlime.QuickMarket.shop.PlayerMarket;
@@ -42,6 +43,9 @@ public class MarketListener implements Listener {
 	
 	@EventHandler(priority=EventPriority.LOWEST)
 	public void onInteract(PlayerInteractEvent e) {
+		// This Event should only be called once!
+		if (e.getHand().equals(EquipmentSlot.OFF_HAND)) return;
+		
 		if (link.containsKey(e.getPlayer().getUniqueId()) && e.getAction() == Action.RIGHT_CLICK_BLOCK) {
 			link.get(e.getPlayer().getUniqueId()).accept(e.getClickedBlock());
 			link.remove(e.getPlayer().getUniqueId());
