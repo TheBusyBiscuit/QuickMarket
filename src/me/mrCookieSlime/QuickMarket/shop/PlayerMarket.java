@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 
 public class PlayerMarket extends PlayerShop {
 	
-	public static final ItemStack placeholder = new CustomItem(Material.CHEST, "Shop", 0);
+	public static final ItemStack placeholder = new CustomItem(Material.CHEST, "Shop");
 	String market;
 
 	public PlayerMarket(String market, Block sign, Block chest, Player p, int amount, double price, ShopType type) {
@@ -29,7 +29,7 @@ public class PlayerMarket extends PlayerShop {
 		
 		this.owner = stand.owner;
 		
-		if (stand.timestamp == 0 && !isItemSimiliar(this.item, placeholder)) {
+		if (stand.timestamp == 0 && !canStack(this.item, placeholder)) {
 			this.owner = null;
 			this.item = placeholder;
 			this.type = ShopType.BUY;
