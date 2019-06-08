@@ -26,3 +26,4 @@ assignees: ''
 
  - Minecraft Version:
  - CS-CoreLib Version:
+ - QuickMarket Version:
