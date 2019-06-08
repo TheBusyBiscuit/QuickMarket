@@ -3,6 +3,15 @@ package me.mrCookieSlime.QuickMarket;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
+
+import org.bukkit.Bukkit;
+import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldLoadEvent;
+import org.bukkit.plugin.RegisteredServiceProvider;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import me.mrCookieSlime.CSCoreLibPlugin.PluginUtils;
 import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
@@ -13,14 +22,6 @@ import me.mrCookieSlime.QuickMarket.shop.PlayerMarket;
 import me.mrCookieSlime.QuickMarket.shop.PlayerShop;
 import net.milkbowl.vault.economy.Economy;
 
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.plugin.RegisteredServiceProvider;
-import org.bukkit.plugin.java.JavaPlugin;
-
 public class QuickMarket extends JavaPlugin {
 
 	private static QuickMarket instance;
@@ -28,12 +29,13 @@ public class QuickMarket extends JavaPlugin {
 	public Localization local;
 	private boolean clearlag, backpacks;
 	public Economy economy;
-	
-	protected List<String> loadedWorlds = new ArrayList<String>();
+
+	protected List<UUID> worlds = new ArrayList<>();
 	
 	@Override
 	public void onEnable() {
 		CSCoreLibLoader loader = new CSCoreLibLoader(this);
+		
 		if (loader.load()) {
 			instance = this;
 			PluginUtils utils = new PluginUtils(this);
@@ -57,6 +59,8 @@ public class QuickMarket extends JavaPlugin {
 			local.setDefault("shops.not-enough-items-owner", "&cThis Shop is sold out!");
 			local.setDefault("shops.disabled", "&cThis Shop is currently disabled! Come back later!");
 			local.setDefault("shops.editing", "&cThis Shop is currently being edited! Please come back later!");
+			local.setDefault("shops.delete-via-sign", "&4Delete the Shop using the Shopmenu instead of breaking the Block");
+			local.setDefault("shops.no-access", "&4You are not allowed to edit this Shop!");
 			
 			local.setDefault("shops.sold", "&8+ &6{MONEY} &8[&cSold&o {AMOUNT} &cItems&8]");
 			local.setDefault("shops.sold-owner", "&8- &6{MONEY} &8[&c{PLAYER} sold&o {AMOUNT} &cItems&8]");
@@ -71,6 +75,7 @@ public class QuickMarket extends JavaPlugin {
 			local.setDefault("market.too-long", "&cYou cannot rent a Marketstand for that long!");
 			local.setDefault("market.rented", "&aYou successfully rented this MarketStand for %days% Day(s)!");
 			local.setDefault("market.not-a-valid-price", "&cThe Price on Line 2 is not valid!");
+			local.setDefault("market.delete-via-sign", "&4Delete the Shop by destroying the Marketstand Sign");
 			local.save();
 			
 			if (!new File("data-storage/QuickMarket/shops").exists()) new File("data-storage/QuickMarket/shops").mkdirs();
@@ -86,21 +91,21 @@ public class QuickMarket extends JavaPlugin {
 			}
 			
 			try {
-				for (World w: Bukkit.getWorlds()) {
-					if (!loadedWorlds.contains(w.getName())) {
+				for (World world: Bukkit.getWorlds()) {
+					if (!worlds.contains(world.getUID())) {
 						for (File file: new File("data-storage/QuickMarket/shops").listFiles()) {
-							if (file.getName().split(";")[0].equals(w.getName())) {
+							if (file.getName().split(";")[0].equals(world.getUID().toString())) {
 								Config cfg = new Config(file);
 								if (cfg.getBoolean("market")) new PlayerMarket(cfg);
 								else new PlayerShop(cfg);
 							}
 						}
 						for (File file: new File("data-storage/QuickMarket/markets").listFiles()) {
-							if (file.getName().split(";")[0].equals(w.getName())) {
+							if (file.getName().split(";")[0].equals(world.getUID().toString())) {
 								new MarketStand(new Config(file));
 							}
 						}
-						System.out.println("[QuickMarket] Loaded " + PlayerShop.shops.size() + " Shop(s) for World \"" + w.getName() + "\"");
+						System.out.println("[QuickMarket] Loaded " + PlayerShop.shops.size() + " Shop(s) for World \"" + world.getName() + "\"");
 					}
 				}
 				
@@ -108,22 +113,22 @@ public class QuickMarket extends JavaPlugin {
 					
 					@EventHandler
 					public void onWorldLoad(WorldLoadEvent e) {
-						World w = e.getWorld();
+						World world = e.getWorld();
 						
-						if (!loadedWorlds.contains(w.getName())) {
+						if (!worlds.contains(world.getUID())) {
 							for (File file: new File("data-storage/QuickMarket/shops").listFiles()) {
-								if (file.getName().split(";")[0].equals(w.getName())) {
+								if (file.getName().split(";")[0].equals(world.getUID().toString())) {
 									Config cfg = new Config(file);
 									if (cfg.getBoolean("market")) new PlayerMarket(cfg);
 									else new PlayerShop(cfg);
 								}
 							}
 							for (File file: new File("data-storage/QuickMarket/markets").listFiles()) {
-								if (file.getName().split(";")[0].equals(w.getName())) {
+								if (file.getName().split(";")[0].equals(world.getUID().toString())) {
 									new MarketStand(new Config(file));
 								}
 							}
-							System.out.println("[QuickMarket] Loaded " + PlayerShop.shops.size() + " Shop(s) for World \"" + w.getName() + "\"");
+							System.out.println("[QuickMarket] Loaded " + PlayerShop.shops.size() + " Shop(s) for World \"" + world.getName() + "\"");
 						}
 					}
 					

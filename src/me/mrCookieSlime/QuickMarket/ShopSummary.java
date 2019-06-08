@@ -13,27 +13,26 @@ import org.bukkit.entity.Player;
 public class ShopSummary {
 	
 	public ShopSummary(final UUID owner) {
-		Bukkit.getScheduler().scheduleSyncRepeatingTask(QuickMarket.getInstance(), new Runnable() {
-			
-			@Override
-			public void run() {
-				Player pl = Bukkit.getPlayer(owner);
-				if (pl != null) {
-					for (String p: temp_moneyS.keySet()) {
-						int amount = temp_itemsS.get(p);
-						double money = temp_moneyS.get(p);
-						QuickMarket.getInstance().local.sendTranslation(pl, "shops.sold-owner", false, new Variable("{MONEY}", "$" + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)), new Variable("{PLAYER}", p));
-					}
-					for (String p: temp_moneyB.keySet()) {
-						int amount = temp_itemsB.get(p);
-						double money = temp_moneyB.get(p);
-						QuickMarket.getInstance().local.sendTranslation(pl, "shops.bought-owner", false, new Variable("{MONEY}", "$" + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)), new Variable("{PLAYER}", p));
-					}
-					temp_moneyS.clear();
-					temp_moneyB.clear();
-					temp_itemsS.clear();
-					temp_itemsB.clear();
+		Bukkit.getScheduler().runTaskTimer(QuickMarket.getInstance(), () -> {
+			Player pl = Bukkit.getPlayer(owner);
+			if (pl != null) {
+				
+				for (String p: temp_moneyS.keySet()) {
+					int amount = temp_itemsS.get(p);
+					double money = temp_moneyS.get(p);
+					QuickMarket.getInstance().local.sendTranslation(pl, "shops.sold-owner", false, new Variable("{MONEY}", "$" + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)), new Variable("{PLAYER}", p));
 				}
+				
+				for (String p: temp_moneyB.keySet()) {
+					int amount = temp_itemsB.get(p);
+					double money = temp_moneyB.get(p);
+					QuickMarket.getInstance().local.sendTranslation(pl, "shops.bought-owner", false, new Variable("{MONEY}", "$" + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)), new Variable("{PLAYER}", p));
+				}
+				
+				temp_moneyS.clear();
+				temp_moneyB.clear();
+				temp_itemsS.clear();
+				temp_itemsB.clear();
 			}
 		}, 0L, 60 * 20L);
 	}

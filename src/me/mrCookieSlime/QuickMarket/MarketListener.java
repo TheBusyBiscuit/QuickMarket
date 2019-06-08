@@ -100,12 +100,17 @@ public class MarketListener implements Listener {
 	
 	private ShopProtectionLevel isChestProtected(Player p, Block b) {
 		PlayerShop shop = PlayerShop.chests.get(b);
-		if (shop != null) return (p == null ||!shop.isOwner(p) || shop.getOwner() == null) ? ShopProtectionLevel.NO_ACCESS: ShopProtectionLevel.ACCESS;
+		
+		if (shop != null) {
+			return (p == null ||!shop.isOwner(p) || shop.getOwner() == null) ? ShopProtectionLevel.NO_ACCESS: ShopProtectionLevel.ACCESS;
+		}
 		else {
 			for (BlockFace face: faces) {
 				Block block = b.getRelative(face);
 				PlayerShop adjacentShop = PlayerShop.chests.get(block);
-				if (block.getType().equals(b.getType()) && adjacentShop != null) return (p == null ||!adjacentShop.isOwner(p) || adjacentShop.getOwner() == null) ? ShopProtectionLevel.NO_ACCESS: ShopProtectionLevel.ACCESS;
+				if (block.getType().equals(b.getType()) && adjacentShop != null) {
+					return (p == null ||!adjacentShop.isOwner(p) || adjacentShop.getOwner() == null) ? ShopProtectionLevel.NO_ACCESS: ShopProtectionLevel.ACCESS;
+				}
 			}
 		}
 		return ShopProtectionLevel.NO_SHOP;
@@ -139,10 +144,15 @@ public class MarketListener implements Listener {
 	
 	@EventHandler
 	public void onChunkUnload(ChunkUnloadEvent e) {
-		String chunk = e.getChunk().getWorld().getName() + "_" + e.getChunk().getX() + "_" + e.getChunk().getZ();
-		if (PlayerShop.chunk.containsKey(chunk)) {
-			List<PlayerShop> shops = PlayerShop.chunk.get(chunk);
-			if (QuickMarket.getInstance().cfg.getBoolean("options.chunk-notifications")) System.out.println("[QuickMarket] Chunk X:" + e.getChunk().getX() + " Z:" + e.getChunk().getZ() + " has been unloaded, this lead to " + shops.size() + " Shop(s) being temporarily unloaded.");
+		String chunk = e.getChunk().getWorld().getUID().toString() + "_" + e.getChunk().getX() + "_" + e.getChunk().getZ();
+		
+		if (PlayerShop.chunks.containsKey(chunk)) {
+			List<PlayerShop> shops = PlayerShop.chunks.get(chunk);
+			
+			if (QuickMarket.getInstance().cfg.getBoolean("options.chunk-notifications")) {
+				System.out.println("[QuickMarket] Chunk X:" + e.getChunk().getX() + " Z:" + e.getChunk().getZ() + " has been unloaded, this lead to " + shops.size() + " Shop(s) being temporarily unloaded.");
+			}
+			
 			for (PlayerShop shop: shops) {
 				if (shop.getDisplayItem() != null) shop.getDisplayItem().remove();
 				shop.setLoaded(false);
@@ -152,10 +162,15 @@ public class MarketListener implements Listener {
 	
 	@EventHandler
 	public void onChunkLoad(ChunkLoadEvent e) {
-		String chunk = e.getChunk().getWorld().getName() + "_" + e.getChunk().getX() + "_" + e.getChunk().getZ();
-		if (PlayerShop.chunk.containsKey(chunk)) {
-			List<PlayerShop> shops = PlayerShop.chunk.get(chunk);
-			if (QuickMarket.getInstance().cfg.getBoolean("options.chunk-notifications")) System.out.println("[QuickMarket] Chunk X:" + e.getChunk().getX() + " Z:" + e.getChunk().getZ() + " has been loaded, this lead to " + shops.size() + " Shop(s) being loaded.");
+		String chunk = e.getChunk().getWorld().getUID().toString() + "_" + e.getChunk().getX() + "_" + e.getChunk().getZ();
+		
+		if (PlayerShop.chunks.containsKey(chunk)) {
+			List<PlayerShop> shops = PlayerShop.chunks.get(chunk);
+			
+			if (QuickMarket.getInstance().cfg.getBoolean("options.chunk-notifications")) {
+				System.out.println("[QuickMarket] Chunk X:" + e.getChunk().getX() + " Z:" + e.getChunk().getZ() + " has been loaded, this lead to " + shops.size() + " Shop(s) being loaded.");
+			}
+			
 			for (PlayerShop shop: shops) {
 				shop.setLoaded(true);
 				shop.update(true);
@@ -169,20 +184,32 @@ public class MarketListener implements Listener {
 		if (shop != null) {
 			e.setCancelled(true);
 			if (shop.isOwner(e.getPlayer())) {
-				if (shop.isMarket()) e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Delete the Shop by destroying the Marketstand Sign"));
-				else e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Delete the Shop using the Shopmenu instead of breaking the Block"));
+				if (shop.isMarket()) {
+					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.delete-via-sign", true);
+				}
+				else {
+					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.delete-via-sign", true);
+				}
 			}
-			else e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4You are not permitted to modify this Shop"));
+			else {
+				QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-access", true);
+			}
 		}
 		else {
 			shop = PlayerShop.signs.get(e.getBlock());
 			if (shop != null) {
 				e.setCancelled(true);
 				if (shop.isOwner(e.getPlayer())) {
-					if (shop.isMarket()) e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Delete the Shop by destroying the Marketstand Sign"));
-					else e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4Delete the Shop using the Shopmenu instead of breaking the Block"));
+					if (shop.isMarket()) {
+						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.delete-via-sign", true);
+					}
+					else {
+						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.delete-via-sign", true);
+					}
 				}
-				else e.getPlayer().sendMessage(ChatColor.translateAlternateColorCodes('&', "&4You are not permitted to modify this Shop"));
+				else {
+					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-access", true);
+				}
 			}
 			else {
 				MarketStand market = MarketStand.map.get(MarketStand.location(e.getBlock().getLocation()));
@@ -196,46 +223,50 @@ public class MarketListener implements Listener {
 	@EventHandler
 	public void onSignEdit(SignChangeEvent e) {
 		if (!(e.getBlock().getState() instanceof Sign)) return;
+		
 		Sign sign = (Sign) e.getBlock().getState();
 		if (sign.getBlockData() instanceof WallSign) {
 			if (e.getLine(0).equalsIgnoreCase(ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', QuickMarket.getInstance().cfg.getString("shops.prefix"))))) {
 				Block chest = e.getBlock().getRelative(((WallSign) sign.getBlockData()).getFacing().getOppositeFace());
+				
 				if (!chests.contains(chest.getType())) {
 					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-chest", true);
 					e.setCancelled(true);
 					return;
 				}
 				else {
-					try {
-						double price = Double.valueOf(e.getLine(2));
-						ShopType type;
-						if (e.getLine(3).equalsIgnoreCase("sell")) type = ShopType.SELL;
-						else if (e.getLine(3).equalsIgnoreCase("buy")) type = ShopType.BUY;
-						else if (e.getLine(3).equalsIgnoreCase("sellall")) type = ShopType.SELL_ALL;
-						else {
-							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-type", true);
-							e.setCancelled(true);
-							return;
-						}
-						try {
-							int amount = Integer.parseInt(e.getLine(1));
-							if (amount > 0) {
-								PlayerShop shop = new PlayerShop(e.getBlock(), chest, e.getPlayer(), amount, price, type);
-								e.setCancelled(true);
-								shop.update(true);
-							}
-							else {
-								QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
-								e.setCancelled(true);
-								return;
-							}
-						} catch(NumberFormatException x) {
-							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
-							e.setCancelled(true);
-							return;
-						}
-					} catch(NumberFormatException x) {
+					if (!e.getLine(1).matches("[0-9]+")) {
+						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
+						e.setCancelled(true);
+						return;
+					}
+					
+					if (!e.getLine(2).matches("[0-9\\.]+")) {
 						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-price", true);
+						e.setCancelled(true);
+						return;
+					}
+					
+					double price = Double.valueOf(e.getLine(2));
+					ShopType type = null;
+					
+					if (e.getLine(3).equalsIgnoreCase("sell")) type = ShopType.SELL;
+					else if (e.getLine(3).equalsIgnoreCase("buy")) type = ShopType.BUY;
+					else if (e.getLine(3).equalsIgnoreCase("sellall")) type = ShopType.SELL_ALL;
+					else {
+						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-type", true);
+						e.setCancelled(true);
+						return;
+					}
+
+					int amount = Integer.parseInt(e.getLine(1));
+					if (amount > 0) {
+						PlayerShop shop = new PlayerShop(e.getBlock(), chest, e.getPlayer(), amount, price, type);
+						e.setCancelled(true);
+						shop.update(true);
+					}
+					else {
+						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
 						e.setCancelled(true);
 						return;
 					}
@@ -255,15 +286,15 @@ public class MarketListener implements Listener {
 			}
 			else if (e.getLine(0).equalsIgnoreCase("[MarketStand]")) {
 				if (e.getPlayer().hasPermission("QuickMarket.market.admin")) {
-					try {					
-						double price = Double.valueOf(e.getLine(1));
-						e.setCancelled(true);
-						new MarketStand(e.getBlock(), price);
-					} catch(NumberFormatException x) {
+					if (!e.getLine(1).matches("[0-9\\.]+")) {
 						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.not-a-valid-price", true);
 						e.setCancelled(true);
 						return;
 					}
+					
+					double price = Double.valueOf(e.getLine(1));
+					e.setCancelled(true);
+					new MarketStand(e.getBlock(), price);
 				}
 				else e.setCancelled(true);
 			}
