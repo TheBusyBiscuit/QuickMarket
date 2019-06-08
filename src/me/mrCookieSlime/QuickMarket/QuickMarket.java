@@ -20,6 +20,7 @@ import me.mrCookieSlime.CSCoreLibSetup.CSCoreLibLoader;
 import me.mrCookieSlime.QuickMarket.shop.MarketStand;
 import me.mrCookieSlime.QuickMarket.shop.PlayerMarket;
 import me.mrCookieSlime.QuickMarket.shop.PlayerShop;
+import me.mrCookieSlime.bstats.bukkit.Metrics;
 import net.milkbowl.vault.economy.Economy;
 
 public class QuickMarket extends JavaPlugin {
@@ -38,12 +39,23 @@ public class QuickMarket extends JavaPlugin {
 		
 		if (loader.load()) {
 			instance = this;
+			
 			PluginUtils utils = new PluginUtils(this);
 			utils.setupConfig();
 			cfg = utils.getConfig();
 			
+			
 			utils.setupUpdater(94051, getFile());
 			utils.setupMetrics();
+			
+			Metrics metrics = utils.getMetrics();
+			
+			metrics.addCustomChart(new Metrics.SingleLineChart("player_shops_on_servers_using_quickmarket", () -> {
+				File file = new File("data-storage/QuickMarket/shops");
+				
+				if (!file.exists()) return 0;
+				else return file.listFiles().length;
+			}));
 			
 			utils.setupLocalization();
 			local = utils.getLocalization();
