@@ -895,7 +895,13 @@ public class PlayerShop {
 
 	public boolean isOwner(Player p) {
 		if (owner == null) return false;
-		return p.hasPermission("QuickMarket.shop.bypass") || p.getUniqueId().equals(owner);
+		
+		if (infinite) {
+			return p.hasPermission("QuickMarket.shop.infinite");
+		}
+		else if (p.getUniqueId().equals(owner)) return true;
+		
+		return p.hasPermission("QuickMarket.shop.bypass");
 	}
 	
 	public boolean isInfinite() {

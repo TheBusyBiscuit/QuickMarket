@@ -148,7 +148,11 @@ public class QuickMarket extends JavaPlugin {
 					
 				}, this);
 				
-				setupEconomy();
+				if (!setupEconomy()) {
+					getServer().getPluginManager().disablePlugin(this);
+					throw new IllegalStateException("Disabling QuickMarket - No Economy Plugin found!");
+				}
+				
 				new MarketListener(this);
 				
 				clearlag = getServer().getPluginManager().isPluginEnabled("ClearLag");
