@@ -6,6 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
 import io.github.thebusybiscuit.cscorelib2.config.Config;
+import io.github.thebusybiscuit.cscorelib2.inventory.ItemUtils;
 import io.github.thebusybiscuit.cscorelib2.item.CustomItem;
 
 public class PlayerMarket extends PlayerShop {
@@ -29,7 +30,7 @@ public class PlayerMarket extends PlayerShop {
 		
 		this.owner = stand.owner;
 		
-		if (stand.timestamp == 0 && !canStack(this.item, placeholder)) {
+		if (stand.timestamp == 0 && !ItemUtils.canStack(this.item, placeholder)) {
 			this.owner = null;
 			this.item = placeholder;
 			this.type = ShopType.BUY;

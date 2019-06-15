@@ -20,9 +20,6 @@ import org.bukkit.entity.Item;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.Damageable;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
@@ -231,10 +228,10 @@ public class PlayerShop {
 					if (infinite) quantity = amount;
 					else {
 						for (ItemStack item: chest.getInventory().getContents()) {
-							if (canStack(item, this.item)) quantity = quantity + item.getAmount();
+							if (ItemUtils.canStack(item, this.item)) quantity = quantity + item.getAmount();
 							else if (QuickMarket.getInstance().isPrisonUtilsInstalled() && Backpacks.isBackPack(item)) {
 								for (ItemStack stack: chest.getInventory().getContents()) {
-									if (canStack(stack, this.item)) quantity = quantity + stack.getAmount();
+									if (ItemUtils.canStack(stack, this.item)) quantity = quantity + stack.getAmount();
 								}
 							}
 						}
@@ -249,7 +246,7 @@ public class PlayerShop {
 							inventory:
 							for (int i = 0; i < chest.getInventory().getSize(); i++) {
 								ItemStack item = chest.getInventory().getItem(i);
-								if (canStack(item, this.item)) {
+								if (ItemUtils.canStack(item, this.item)) {
 									int amt = item.getAmount();
 									if (amt > rest) {
 										amt = amt - rest;
@@ -269,7 +266,7 @@ public class PlayerShop {
 									for (int j = 0; j < inv.getSize(); j++) {
 										ItemStack stack = inv.getItem(j);
 										
-										if (canStack(stack, this.item)) {
+										if (ItemUtils.canStack(stack, this.item)) {
 											int amt = stack.getAmount();
 											if (amt > rest) {
 												amt = amt - rest;
@@ -329,13 +326,13 @@ public class PlayerShop {
 				int n = 0;
 				inventory:
 				for (ItemStack item: p.getInventory().getContents()) {
-					if (canStack(item, this.item)) {
+					if (ItemUtils.canStack(item, this.item)) {
 						n = n + item.getAmount();
 						if (n >= getAmount()) break inventory;
 					}
 					else if (QuickMarket.getInstance().isPrisonUtilsInstalled() && Backpacks.isBackPack(item)) {
 						for (ItemStack stack: Backpacks.getInventory(item)) {
-							if (canStack(stack, this.item)) {
+							if (ItemUtils.canStack(stack, this.item)) {
 								n = n + stack.getAmount();
 								if (n >= getAmount()) break inventory;
 							}
@@ -353,7 +350,7 @@ public class PlayerShop {
 				ItemStack item = p.getInventory().getContents()[i];
 				
 				// Check if the current Item matches the Shop's Item
-				if (canStack(item, this.item)) {
+				if (ItemUtils.canStack(item, this.item)) {
 					// Get how many Items the Shop Owner can afford
 					int quantity = infinite ? item.getAmount() : (int) ((QuickMarket.getInstance().economy.getBalance(Bukkit.getOfflinePlayer(owner)) / this.price));
 					if (quantity > item.getAmount()) quantity = item.getAmount();
@@ -434,7 +431,7 @@ public class PlayerShop {
 						ItemStack stack = backpack.getContents()[j];
 						
 						// Check if the current Item matches the Shop's Item
-						if (canStack(stack, this.item)) {
+						if (ItemUtils.canStack(stack, this.item)) {
 							// Get how many Items the Shop Owner can afford
 							int quantity = infinite ? stack.getAmount() : (int) (QuickMarket.getInstance().economy.getBalance(Bukkit.getOfflinePlayer(owner)) / this.price);
 							if (quantity > stack.getAmount()) quantity = stack.getAmount();
@@ -919,51 +916,6 @@ public class PlayerShop {
 	
 	public boolean isInfinite() {
 		return this.infinite;
-	}
-	
-	/**
-	 * This method compares two instances of {@link ItemStack} and checks
-	 * whether their {@link Material} and {@link ItemMeta} match.
-	 * 
-	 * @param a	{@link ItemStack} One
-	 * @param b {@link ItemStack} Two
-	 * @return
-	 */
-	public static boolean canStack(ItemStack a, ItemStack b) {
-		if (a == null || b == null) return false;
-		
-		if (!a.getType().equals(b.getType())) return false;
-		if (a.hasItemMeta() != b.hasItemMeta()) return false;
-		
-		if (a.hasItemMeta()) {
-			ItemMeta aMeta = a.getItemMeta(), bMeta = b.getItemMeta();
-			
-			if (aMeta instanceof Damageable != bMeta instanceof Damageable) return false;
-			if (aMeta instanceof Damageable) {
-				if (((Damageable) aMeta).getDamage() != ((Damageable) bMeta).getDamage()) return false;
-			}
-
-			if (aMeta instanceof LeatherArmorMeta != bMeta instanceof LeatherArmorMeta) return false;
-			if (aMeta instanceof LeatherArmorMeta) {
-				if (!((LeatherArmorMeta) aMeta).getColor().equals(((LeatherArmorMeta) bMeta).getColor())) return false;
-			}
-			
-			if (aMeta.hasDisplayName() != bMeta.hasDisplayName()) return false;
-			if (aMeta.hasDisplayName()) {
-				if (!aMeta.getDisplayName().equals(bMeta.getDisplayName())) return false;
-			}
-
-			if (aMeta.hasLore() != bMeta.hasLore()) return false;
-			if (aMeta.hasLore()) {
-				if (aMeta.getLore().size() != bMeta.getLore().size()) return false;
-				
-				for (int i = 0; i < aMeta.getLore().size(); i++) {
-					if (!aMeta.getLore().get(i).equals(bMeta.getLore().get(i))) return false;
-				}
-			}
-		}
-		
-		return true;
 	}
 
 	public Item getDisplayItem() {
