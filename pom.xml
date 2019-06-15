@@ -76,6 +76,7 @@
                 				<include>**/thebusybiscuit/cscorelib2/math/**</include>
                 				<include>**/thebusybiscuit/cscorelib2/inventory/**</include>
                 				<include>**/thebusybiscuit/cscorelib2/item/**</include>
+                				<include>**/thebusybiscuit/cscorelib2/reflection/**</include>
                 				<include>**/thebusybiscuit/cscorelib2/skull/**</include>
               				</includes>
             			</filter>
