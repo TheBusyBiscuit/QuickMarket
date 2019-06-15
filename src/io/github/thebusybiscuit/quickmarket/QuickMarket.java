@@ -37,7 +37,7 @@ public class QuickMarket extends JavaPlugin {
 		instance = this;
 		
 		cfg = new Config(this);
-		new BukkitUpdater(this, getFile(), 94051);
+		new BukkitUpdater(this, getFile(), 94051).start();
 		
 		Metrics metrics = new Metrics(this);
 		
