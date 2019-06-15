@@ -1,13 +1,12 @@
 name: QuickMarket
 version: ${project.version}
-author: mrCookieSlime
+author: TheBusyBiscuit
 website: http://thebusybiscuit.github.io/
 depend: [Vault]
-softdepend: [CS-CoreLib, PrisonUtils]
+softdepend: [PrisonUtils]
 
-main: me.mrCookieSlime.QuickMarket.QuickMarket
-
-api-version: 1.14
+main: io.github.thebusybiscuit.quickmarket.QuickMarket
+api-version: 1.13
 
 permissions:
   QuickMarket.shop.infinite:

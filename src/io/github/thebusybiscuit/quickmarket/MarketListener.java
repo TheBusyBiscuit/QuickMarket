@@ -1,4 +1,4 @@
-package me.mrCookieSlime.QuickMarket;
+package io.github.thebusybiscuit.quickmarket;
 
 import java.util.HashMap;
 import java.util.List;
@@ -26,11 +26,11 @@ import org.bukkit.event.world.ChunkLoadEvent;
 import org.bukkit.event.world.ChunkUnloadEvent;
 import org.bukkit.inventory.EquipmentSlot;
 
-import me.mrCookieSlime.QuickMarket.shop.MarketStand;
-import me.mrCookieSlime.QuickMarket.shop.PlayerMarket;
-import me.mrCookieSlime.QuickMarket.shop.PlayerShop;
-import me.mrCookieSlime.QuickMarket.shop.ShopProtectionLevel;
-import me.mrCookieSlime.QuickMarket.shop.ShopType;
+import io.github.thebusybiscuit.quickmarket.shop.MarketStand;
+import io.github.thebusybiscuit.quickmarket.shop.PlayerMarket;
+import io.github.thebusybiscuit.quickmarket.shop.PlayerShop;
+import io.github.thebusybiscuit.quickmarket.shop.ShopProtectionLevel;
+import io.github.thebusybiscuit.quickmarket.shop.ShopType;
 
 public class MarketListener implements Listener {
 	
@@ -73,7 +73,7 @@ public class MarketListener implements Listener {
 				ShopProtectionLevel level = isChestProtected(e.getPlayer(), e.getClickedBlock());
 				if (level.equals(ShopProtectionLevel.NO_ACCESS)) {
 					e.setCancelled(true);
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-access", true);
+					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.no-access", true);
 				}
 			}
 		}
@@ -167,14 +167,14 @@ public class MarketListener implements Listener {
 			e.setCancelled(true);
 			if (shop.isOwner(e.getPlayer())) {
 				if (shop.isMarket()) {
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.delete-via-sign", true);
+					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.delete-via-sign", true);
 				}
 				else {
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.delete-via-sign", true);
+					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.delete-via-sign", true);
 				}
 			}
 			else {
-				QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-access", true);
+				QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.no-access", true);
 			}
 		}
 		else {
@@ -183,14 +183,14 @@ public class MarketListener implements Listener {
 				e.setCancelled(true);
 				if (shop.isOwner(e.getPlayer())) {
 					if (shop.isMarket()) {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.delete-via-sign", true);
+						QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.delete-via-sign", true);
 					}
 					else {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.delete-via-sign", true);
+						QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.delete-via-sign", true);
 					}
 				}
 				else {
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-access", true);
+					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.no-access", true);
 				}
 			}
 			else {
@@ -213,19 +213,19 @@ public class MarketListener implements Listener {
 					Block chest = e.getBlock().getRelative(((WallSign) sign.getBlockData()).getFacing().getOppositeFace());
 					
 					if (!(chest.getState() instanceof Container)) {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-chest", true);
+						QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.not-a-chest", true);
 						e.setCancelled(true);
 						return;
 					}
 					else {
 						if (!e.getLine(1).matches("[0-9]+")) {
-							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
+							QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.not-a-valid-amount", true);
 							e.setCancelled(true);
 							return;
 						}
 						
 						if (!e.getLine(2).matches("[0-9\\.]+")) {
-							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-price", true);
+							QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.not-a-valid-price", true);
 							e.setCancelled(true);
 							return;
 						}
@@ -237,7 +237,7 @@ public class MarketListener implements Listener {
 						else if (e.getLine(3).equalsIgnoreCase("buy")) type = ShopType.BUY;
 						else if (e.getLine(3).equalsIgnoreCase("sellall")) type = ShopType.SELL_ALL;
 						else {
-							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-type", true);
+							QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.not-a-valid-type", true);
 							e.setCancelled(true);
 							return;
 						}
@@ -249,14 +249,14 @@ public class MarketListener implements Listener {
 							shop.update(true);
 						}
 						else {
-							QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-valid-amount", true);
+							QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.not-a-valid-amount", true);
 							e.setCancelled(true);
 							return;
 						}
 					}
 				}
 				else {
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.no-permission", true);
+					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.no-permission", true);
 					e.setCancelled(true);
 				}
 			}
@@ -265,21 +265,21 @@ public class MarketListener implements Listener {
 					Block chest = e.getBlock().getRelative(((WallSign) sign.getBlockData()).getFacing().getOppositeFace());
 
 					if (!(chest.getState() instanceof Container)) {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "shops.not-a-chest", true);
+						QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.not-a-chest", true);
 						e.setCancelled(true);
 						return;
 					}
 					else createMarket(e, chest, 1, 100.0, ShopType.BUY);
 				}
 				else {
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.no-permission", true);
+					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.no-permission", true);
 					e.setCancelled(true);
 				}
 			}
 			else if (e.getLine(0).equalsIgnoreCase("[MarketStand]")) {
 				if (e.getPlayer().hasPermission("QuickMarket.market.admin")) {
 					if (!e.getLine(1).matches("[0-9\\.]+")) {
-						QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.not-a-valid-price", true);
+						QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.not-a-valid-price", true);
 						e.setCancelled(true);
 						return;
 					}
@@ -289,7 +289,7 @@ public class MarketListener implements Listener {
 					new MarketStand(e.getBlock(), price);
 				}
 				else {
-					QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.no-permission", true);
+					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.no-permission", true);
 					e.setCancelled(true);
 				}
 			}
@@ -298,14 +298,14 @@ public class MarketListener implements Listener {
 
 	private void createMarket(final SignChangeEvent e, final Block chest, final int amount, final double price, final ShopType type) {
 		e.setCancelled(true);
-		QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.link", true);
+		QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.link", true);
 		
 		link.put(e.getPlayer().getUniqueId(), (block) -> {
 			if (!MarketStand.map.containsKey(MarketStand.location(block.getLocation()))) {
-				QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.link-abort", true);
+				QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.link-abort", true);
 				return;
 			}
-			QuickMarket.getInstance().local.sendTranslation(e.getPlayer(), "market.link-success", true);
+			QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.link-success", true);
 			PlayerMarket shop = new PlayerMarket(MarketStand.location(block.getLocation()), e.getBlock(), chest, e.getPlayer(), amount, price, type);
 			shop.update(true);
 		});

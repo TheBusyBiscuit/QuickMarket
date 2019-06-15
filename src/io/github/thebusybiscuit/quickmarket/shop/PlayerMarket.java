@@ -1,12 +1,12 @@
-package me.mrCookieSlime.QuickMarket.shop;
-
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
+package io.github.thebusybiscuit.quickmarket.shop;
 
 import org.bukkit.Material;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+
+import io.github.thebusybiscuit.cscorelib2.config.Config;
+import io.github.thebusybiscuit.cscorelib2.item.CustomItem;
 
 public class PlayerMarket extends PlayerShop {
 	

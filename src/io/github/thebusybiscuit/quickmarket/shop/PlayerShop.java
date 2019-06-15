@@ -1,4 +1,4 @@
-package me.mrCookieSlime.QuickMarket.shop;
+package io.github.thebusybiscuit.quickmarket.shop;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -26,21 +26,17 @@ import org.bukkit.inventory.meta.LeatherArmorMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.util.Vector;
 
-import me.mrCookieSlime.CSCoreLibPlugin.CSCoreLib;
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Variable;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu.MenuClickHandler;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.InvUtils;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Math.DoubleHandler;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Player.PlayerInventory;
-import me.mrCookieSlime.CSCoreLibPlugin.general.String.StringUtils;
-import me.mrCookieSlime.CSCoreLibPlugin.general.World.CustomSkull;
-import me.mrCookieSlime.CSCoreLibPlugin.general.audio.Soundboard;
+import io.github.thebusybiscuit.cscorelib2.config.Config;
+import io.github.thebusybiscuit.cscorelib2.inventory.ChestMenu;
+import io.github.thebusybiscuit.cscorelib2.inventory.InvUtils;
+import io.github.thebusybiscuit.cscorelib2.inventory.ItemUtils;
+import io.github.thebusybiscuit.cscorelib2.inventory.MenuClickHandler;
+import io.github.thebusybiscuit.cscorelib2.item.CustomItem;
+import io.github.thebusybiscuit.cscorelib2.math.DoubleHandler;
+import io.github.thebusybiscuit.cscorelib2.skull.SkullItem;
+import io.github.thebusybiscuit.quickmarket.QuickMarket;
+import io.github.thebusybiscuit.quickmarket.ShopSummary;
 import me.mrCookieSlime.PrisonUtils.Backpacks;
-import me.mrCookieSlime.QuickMarket.QuickMarket;
-import me.mrCookieSlime.QuickMarket.ShopSummary;
 
 public class PlayerShop {
 	
@@ -123,19 +119,25 @@ public class PlayerShop {
 			
 			price = cfg.getDouble("price");
 			item = cfg.getItem("item");
+			
+			if (item == null) {
+				throw new NullPointerException(cfg.getFile().getName() + " has no item!");
+			}
+			
 			amount = cfg.getInt("amount");
 			used = cfg.contains("used") ? cfg.getLong("used"): 0;
 			infinite = cfg.getBoolean("infinite");
 			disabled = cfg.getBoolean("disabled");
+			
 			for (int i = 1; i < 25; i++) {
 				schedule[(i - 1)] = cfg.getBoolean("schedule." + (i - 1));
 			}
+			
+			load();
 		} catch(Exception x) {
 			System.err.println("[QuickMarket] Found remainings of deleted Shop @ " + cfg.getFile().getName());
 			cfg.getFile().delete();
 		}
-		
-		load();
 	}
 	
 	public void update(boolean refreshItem) {
@@ -176,11 +178,11 @@ public class PlayerShop {
 			display.remove();
 		}
 		
-		display = chest.getWorld().dropItem(chest.getLocation().add(0.5, 1.2, 0.5), new CustomItem(new CustomItem(item, "&6&lQuickMarket Display Item &e" + CSCoreLib.randomizer().nextInt(10000)), 1));
+		display = chest.getWorld().dropItem(chest.getLocation().add(0.5, 1.2, 0.5), new CustomItem(new CustomItem(item, "&6&lQuickMarket Display Item &e" + System.currentTimeMillis()), 1));
 		display.setVelocity(new Vector(0, 0.1, 0));
 		
 		if (QuickMarket.getInstance().cfg.getBoolean("options.item-nametags")) {
-			display.setCustomName(StringUtils.formatItemName(item, false));
+			display.setCustomName(ItemUtils.getFormattedItemName(item));
 			display.setCustomNameVisible(true);
 		}
 		
@@ -190,7 +192,7 @@ public class PlayerShop {
 
 	public void handleTransaction(Player p, int amount2) {
 		if (this.owner == null) {
-			QuickMarket.getInstance().local.sendTranslation(p, "shops.disabled", true);
+			QuickMarket.getInstance().local.sendMessage(p, "shops.disabled", true);
 			update(false);
 			return;
 		}
@@ -202,12 +204,12 @@ public class PlayerShop {
 		}
 		
 		if (!isOpen()) {
-			QuickMarket.getInstance().local.sendTranslation(p, "shops.disabled", true);
+			QuickMarket.getInstance().local.sendMessage(p, "shops.disabled", true);
 			return;
 		}
 		
 		if (editing) {
-			QuickMarket.getInstance().local.sendTranslation(p, "shops.editing", true);
+			QuickMarket.getInstance().local.sendMessage(p, "shops.editing", true);
 			return;
 		}
 		
@@ -293,22 +295,29 @@ public class PlayerShop {
 						
 						QuickMarket.getInstance().economy.withdrawPlayer(p, money);
 						
-						QuickMarket.getInstance().local.sendTranslation(p, "shops.bought", false, new Variable("{MONEY}", QuickMarket.getInstance().cfg.getString("options.money-symbol") + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)));
+						final double m = money;
+						final int am = amount;
+						QuickMarket.getInstance().local.sendMessage(p, "shops.bought", false, (msg) -> {
+							return msg.replace("{MONEY}", QuickMarket.getInstance().cfg.getString("options.money-symbol") + DoubleHandler.getFancyDouble(m))
+									.replace("{AMOUNT}", String.valueOf(am));
+						});
+						
 						refreshTmp(p.getName(), money, amount, ShopType.BUY);
 						
 						int a = amount % 64 == 0 ? amount / 64: amount / 64 + 1;
 						for (int i = 0; i < a; i++) {
 							int amt = amount % 64;
 							ItemStack is = new CustomItem(this.item, amt == 0 ? 64: amt);
-							if (InvUtils.fits(p.getInventory(), is)) p.getInventory().addItem(is);
+							if (InvUtils.fits(p.getInventory(), is)) {
+								p.getInventory().addItem(is);
+							}
 							else p.getWorld().dropItemNaturally(p.getLocation(), is);
 							this.used = used + amount;
 						}
-						PlayerInventory.update(p);
 					}
-					else QuickMarket.getInstance().local.sendTranslation(p, "shops.not-enough-items-owner", true);
+					else QuickMarket.getInstance().local.sendMessage(p, "shops.not-enough-items-owner", true);
 				}
-				else QuickMarket.getInstance().local.sendTranslation(p, "shops.insufficient-funds", true);
+				else QuickMarket.getInstance().local.sendMessage(p, "shops.insufficient-funds", true);
 			}
 			break;
 		}
@@ -334,7 +343,7 @@ public class PlayerShop {
 					}
 				}
 				if (n < getAmount()) {
-					QuickMarket.getInstance().local.sendTranslation(p, "shops.not-enough-items", true);
+					QuickMarket.getInstance().local.sendMessage(p, "shops.not-enough-items", true);
 					return;
 				}
 			}
@@ -396,7 +405,7 @@ public class PlayerShop {
 								p.getInventory().setItem(i, spare);
 								
 								// Inventory is full
-								QuickMarket.getInstance().local.sendTranslation(p, "shops.full-inventory", true);
+								QuickMarket.getInstance().local.sendMessage(p, "shops.full-inventory", true);
 								full = true;
 								// Updating the total Variables
 								amount = amount + quantity;
@@ -415,7 +424,7 @@ public class PlayerShop {
 					}
 					else {
 						// Well seems like the Shop Owner is broke.
-						QuickMarket.getInstance().local.sendTranslation(p, "shops.insufficient-funds-owner", true);
+						QuickMarket.getInstance().local.sendMessage(p, "shops.insufficient-funds-owner", true);
 						break inventory;
 					}
 				}
@@ -478,7 +487,7 @@ public class PlayerShop {
 										backpack.setItem(j, spare);
 										
 										// Inventory is full
-										QuickMarket.getInstance().local.sendTranslation(p, "shops.full-inventory", true);
+										QuickMarket.getInstance().local.sendMessage(p, "shops.full-inventory", true);
 										full = true;
 										// Updating the total Variables
 										amount = amount + quantity;
@@ -498,7 +507,7 @@ public class PlayerShop {
 							}
 							else {
 								// Well seems like the Shop Owner is broke.
-								QuickMarket.getInstance().local.sendTranslation(p, "shops.insufficient-funds-owner", true);
+								QuickMarket.getInstance().local.sendMessage(p, "shops.insufficient-funds-owner", true);
 								break inventory;
 							}
 						}
@@ -511,7 +520,13 @@ public class PlayerShop {
 			// Check if the Player sold something
 			if (amount > 0) {
 				// Send a Message to the Player
-				QuickMarket.getInstance().local.sendTranslation(p, "shops.sold", false, new Variable("{MONEY}", QuickMarket.getInstance().cfg.getString("options.money-symbol") + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)));
+				final double m = money;
+				final int a = amount;
+				QuickMarket.getInstance().local.sendMessage(p, "shops.sold", false, (msg) -> {
+					return msg.replace("{MONEY}", QuickMarket.getInstance().cfg.getString("options.money-symbol") + DoubleHandler.getFancyDouble(m))
+							.replace("{AMOUNT}", String.valueOf(a));
+				});
+				
 				// Send a Message to the Shop Owner later
 				refreshTmp(p.getName(), money, amount, ShopType.SELL);
 				// Reward the Player with Money
@@ -520,12 +535,10 @@ public class PlayerShop {
 				if (!infinite) {
 					QuickMarket.getInstance().economy.withdrawPlayer(Bukkit.getOfflinePlayer(owner), money);
 				}
-				// Update the Player's Inventory
-				PlayerInventory.update(p);
 				// Update the "Used" Stat
 				this.used = used + amount;
 			}
-			else if (!full) QuickMarket.getInstance().local.sendTranslation(p, "shops.full-inventory", true);
+			else if (!full) QuickMarket.getInstance().local.sendMessage(p, "shops.full-inventory", true);
 			break;
 		}
 		default:
@@ -538,29 +551,29 @@ public class PlayerShop {
 	}
 
 	private void openBuyMenu(Player p, final int amount) {
-		ChestMenu menu = new ChestMenu("&9How many Items do you want to buy?");
+		ChestMenu menu = new ChestMenu(QuickMarket.getInstance(), "&9How many Items do you want to buy?");
 		
 		menu.addItem(3, new CustomItem(Material.REDSTONE, "&7Amount: &b" + amount, "", "&7Left Click: &r+1", "&7Shift + Left Click: &r+16", "&7Right Click: &r-1", "&7Shift + Right Click: &r-16"));
-		menu.addMenuClickHandler(3, (player, slot, item, action) -> {
+		menu.addMenuClickHandler(3, (player, slot, item, cursor, action) -> {
 			int i = amount;
-			if (action.isRightClicked()) i = i - (action.isShiftClicked() ? 16: 1);
-			else i = i + (action.isShiftClicked() ? 16: 1);
+			if (action.isRightClick()) i = i - (action.isShiftClick() ? 16: 1);
+			else i = i + (action.isShiftClick() ? 16: 1);
 			if (i < 1) i = 1;
 			openBuyMenu(p, i);
 			return false;
 		});
 		
-		menu.addItem(4, new CustomItem(this.item.getType(), "&r" + StringUtils.formatItemName(item, false), "", "&7Left Click: &rBuy &e" + amount + " " + StringUtils.formatItemName(item, false)));
-		menu.addMenuClickHandler(4, (player, slot, item, action) -> {
+		menu.addItem(4, new CustomItem(this.item.getType(), "&r" + ItemUtils.getFormattedItemName(item), "", "&7Left Click: &rBuy &e" + amount + " " + ItemUtils.getFormattedItemName(item)));
+		menu.addMenuClickHandler(4, (player, slot, item, cursor, action) -> {
 			handleTransaction(p, amount);
 			return false;
 		});
 		
 		menu.addItem(5, new CustomItem(Material.REDSTONE, "&7Amount: &b" + amount, "", "&7Left Click: &r+32", "&7Shift + Left Click: &r+64", "&7Right Click: &r-32", "&7Shift + Right Click: &r-64"));
-		menu.addMenuClickHandler(5, (player, slot, item, action) -> {
+		menu.addMenuClickHandler(5, (player, slot, item, cursor, action) -> {
 			int i = amount;
-			if (action.isRightClicked()) i = i - (action.isShiftClicked() ? 64: 32);
-			else i = i + (action.isShiftClicked() ? 64: 32);
+			if (action.isRightClick()) i = i - (action.isShiftClick() ? 64: 32);
+			else i = i + (action.isShiftClick() ? 64: 32);
 			if (i < 1) i = 1;
 			openBuyMenu(player, i);
 			return false;
@@ -637,12 +650,12 @@ public class PlayerShop {
 	public void openEditor(Player p) {
 		setEditMode(true);
 		p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1F, 1F);
-		ChestMenu menu = new ChestMenu("&eShop Editor");
+		ChestMenu menu = new ChestMenu(QuickMarket.getInstance(), "&eShop Editor");
 		
 		menu.addMenuCloseHandler((player) -> setEditMode(false));
 		
-		menu.addItem(0, new CustomItem(this.item.getType(), "&r" + StringUtils.formatItemName(item, false), "", "&7Left Click: &rChange Item to the Item held in your main Hand"));
-		menu.addMenuClickHandler(0, (player, slot, item, action) -> {
+		menu.addItem(0, new CustomItem(this.item.getType(), "&r" + ItemUtils.getFormattedItemName(item), "", "&7Left Click: &rChange Item to the Item held in your main Hand"));
+		menu.addMenuClickHandler(0, (player, slot, item, cursor, action) -> {
 			if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() != null && player.getInventory().getItemInMainHand().getType() != Material.AIR) {
 				setItem(player.getInventory().getItemInMainHand());
 				update(true);
@@ -651,8 +664,8 @@ public class PlayerShop {
 			return false;
 		});
 		
-		menu.addItem(1, new CustomItem(type == ShopType.SELL ? Material.DIAMOND: (type.equals(ShopType.SELL_ALL) ? Material.GOLD_INGOT: Material.EMERALD), "&rType: &b" + StringUtils.format(type.toString()), "", "&7Left Click: &rToggle State"));
-		menu.addMenuClickHandler(1, (player, slot, item, action) -> {
+		menu.addItem(1, new CustomItem(type == ShopType.SELL ? Material.DIAMOND: (type.equals(ShopType.SELL_ALL) ? Material.GOLD_INGOT: Material.EMERALD), "&rType: &b" + type.getName(), "", "&7Left Click: &rToggle State"));
+		menu.addMenuClickHandler(1, (player, slot, item, cursor, action) -> {
 			toggleType();
 			openEditor(player);
 			return false;
@@ -660,10 +673,10 @@ public class PlayerShop {
 		
 		if (type != ShopType.SELL_ALL) {
 			menu.addItem(2, new CustomItem(Material.GLOWSTONE_DUST, "&7Amount: &b" + amount, "", "&7Left Click: &r+1", "&7Shift + Left Click: &r+16", "&7Right Click: &r-1", "&7Shift + Right Click: &r-16"));
-			menu.addMenuClickHandler(2, (player, slot, item, action) -> {
+			menu.addMenuClickHandler(2, (player, slot, item, cursor, action) -> {
 				int amount = getAmount();
-				if (action.isRightClicked()) amount = amount - (action.isShiftClicked() ? 16: 1);
-				else amount = amount + (action.isShiftClicked() ? 16: 1);
+				if (action.isRightClick()) amount = amount - (action.isShiftClick() ? 16: 1);
+				else amount = amount + (action.isShiftClick() ? 16: 1);
 				if (amount < 1) amount = 1;
 				setAmount(amount);
 				openEditor(player);
@@ -672,11 +685,11 @@ public class PlayerShop {
 		}
 		else {
 			menu.addItem(2, new CustomItem(Material.GLOWSTONE_DUST, "&7Amount: &bAll"));
-			menu.addMenuClickHandler(2, (player, slot, item, action) -> false);
+			menu.addMenuClickHandler(2, (player, slot, item, cursor, action) -> false);
 		}
 		
 		menu.addItem(isMarket() ? 7: 5, new CustomItem(Material.CLOCK, "&eSchedule"));
-		menu.addMenuClickHandler(isMarket() ? 7: 5, (player, slot, item, action) -> {
+		menu.addMenuClickHandler(isMarket() ? 7: 5, (player, slot, item, cursor, action) -> {
 			openSchedule(player);
 			return false;
 		});
@@ -685,12 +698,12 @@ public class PlayerShop {
 		
 		try {
 			String total = type.equals(ShopType.BUY) ? ("&rTotal Income: &6" + symbol + DoubleHandler.getFancyDouble(price * used)): ("&rTotal Outgoings: &6" + symbol + DoubleHandler.getFancyDouble(price * used));
-			menu.addItem(3, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTQ2ZGNkYjAzYzRmZTI1ZDRiYzA2MTdlMmQ5MjZlZDkxY2IzZGE0OWQ3YjFmODlhZTlmMjAyMDE2M2ExZWY5In19fQ=="), "&7Usage", "", "&rThis Shop has been used", "&ra total Amount of &e" + used + " &rtimes", total));
-			menu.addMenuClickHandler(3, (player, slot, item, action) -> false);
+			menu.addItem(3, new CustomItem(SkullItem.fromBase64(UUID.randomUUID(), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZTQ2ZGNkYjAzYzRmZTI1ZDRiYzA2MTdlMmQ5MjZlZDkxY2IzZGE0OWQ3YjFmODlhZTlmMjAyMDE2M2ExZWY5In19fQ=="), "&7Usage", "", "&rThis Shop has been used", "&ra total Amount of &e" + used + " &rtimes", total));
+			menu.addMenuClickHandler(3, (player, slot, item, cursor, action) -> false);
 			
 			if (p.hasPermission("QuickMarket.shop.infinite")) {
-				menu.addItem(6, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjMzNjQxMWUyMWJhNWJhZTQxZGE0ZDBkYTIzYjcxOTExOGYxYzc5YjYxYzMwYmJmMGE1YWNhZjQ1M2ExYSJ9fX0="), "&rInfinite: " + (infinite ? "&2&l\u2714": "&4&l\u2718"), "&c&lAdmin ONLY", "", "&7Left Click: &rToggle State"));
-				menu.addMenuClickHandler(6, (player, slot, item, action) -> {
+				menu.addItem(6, new CustomItem(SkullItem.fromBase64(UUID.randomUUID(), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYjMzNjQxMWUyMWJhNWJhZTQxZGE0ZDBkYTIzYjcxOTExOGYxYzc5YjYxYzMwYmJmMGE1YWNhZjQ1M2ExYSJ9fX0="), "&rInfinite: " + (infinite ? "&2&l\u2714": "&4&l\u2718"), "&c&lAdmin ONLY", "", "&7Left Click: &rToggle State"));
+				menu.addMenuClickHandler(6, (player, slot, item, cursor, action) -> {
 					toggleInfinity();
 					update(false);
 					openEditor(player);
@@ -698,8 +711,8 @@ public class PlayerShop {
 				});
 			}
 			
-			menu.addItem(isMarket() ? 8: 7, new CustomItem(CustomSkull.getItem(disabled ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "&rEnabled: " + (disabled ? "&4&l\u2718": "&2&l\u2714"), "", "&7Left Click: &rToggle State"));
-			menu.addMenuClickHandler(isMarket() ? 8: 7, (player, slot, item, action) -> {
+			menu.addItem(isMarket() ? 8: 7, new CustomItem(SkullItem.fromBase64(UUID.randomUUID(), disabled ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "&rEnabled: " + (disabled ? "&4&l\u2718": "&2&l\u2714"), "", "&7Left Click: &rToggle State"));
+			menu.addMenuClickHandler(isMarket() ? 8: 7, (player, slot, item, cursor, action) -> {
 				toggleState();
 				openEditor(player);
 				return false;
@@ -711,7 +724,7 @@ public class PlayerShop {
 		
 		if (!isMarket()) {
 			menu.addItem(8, new CustomItem(Material.BARRIER, "&4Delete Shop", "", "&rClick to delete your Shop"));
-			menu.addMenuClickHandler(8, (player, slot, item, action) -> {
+			menu.addMenuClickHandler(8, (player, slot, item, cursor, action) -> {
 				delete();
 				player.closeInventory();
 				return false;
@@ -749,17 +762,17 @@ public class PlayerShop {
 	}
 	
 	private MenuClickHandler getPriceHandler(double smaller, double bigger) {
-		return (p, slot, item, action) -> {
+		return (p, slot, item, cursor, action) -> {
 			double price = getPrice();
 			
-			if (action.isRightClicked()) price = price - (action.isShiftClicked() ? bigger: smaller);
-			else price = price + (action.isShiftClicked() ? bigger: smaller);
+			if (action.isRightClick()) price = price - (action.isShiftClick() ? bigger: smaller);
+			else price = price + (action.isShiftClick() ? bigger: smaller);
 			
 			if (price <= 0) price = 0.1;
 			if (price > QuickMarket.getInstance().cfg.getDouble("shops.max-price")) {
 				price = QuickMarket.getInstance().cfg.getDouble("shops.max-price");
-				p.playSound(p.getLocation(), Soundboard.getLegacySounds("BLOCK_NOTE_BASS", "NOTE_BASS"), 1F, 1F);
-				QuickMarket.getInstance().local.sendTranslation(p, "shops.reached-max-price", true);
+				p.playSound(p.getLocation(), Sound.BLOCK_NOTE_BLOCK_BASS, 1F, 1F);
+				QuickMarket.getInstance().local.sendMessage(p, "shops.reached-max-price", true);
 			}
 			
 			setPrice(price);
@@ -769,26 +782,26 @@ public class PlayerShop {
 	}
 	
 	public void openSchedule(Player p) {
-		ChestMenu menu = new ChestMenu("&eSchedule &8- Time: " + getCurrentHour() + ":XX");
+		ChestMenu menu = new ChestMenu(QuickMarket.getInstance(), "&eSchedule &8- Time: " + getCurrentHour() + ":XX");
 		
 		menu.addMenuOpeningHandler((player) -> {
 			player.playSound(player.getLocation(), Sound.BLOCK_NOTE_BLOCK_PLING, 1F, 1F);
 		});
 		
-		menu.addItem(1, new CustomItem(Material.OAK_SIGN, "&e< Back to the Editor", "", "&7Left Click: &rGo Back"));
-		menu.addMenuClickHandler(1, (player, slot, item, action) -> {
+		menu.addItem(1, new CustomItem(Material.COMPASS, "&e< Back to the Editor", "", "&7Left Click: &rGo Back"));
+		menu.addMenuClickHandler(1, (player, slot, item, cursor, action) -> {
 			openEditor(player);
 			return false;
 		});
 		
 		for (int i = 1; i <= 24; i++) {
 			try {
-				menu.addItem(i + 8, new CustomItem(CustomSkull.getItem(schedule[i - 1] ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "&rEnabled at " + i + ":XX " + (schedule[i - 1] ? "&4&l\u2718": "&2&l\u2714"), "", "&7Left Click: &rToggle State"));
+				menu.addItem(i + 8, new CustomItem(SkullItem.fromBase64(UUID.randomUUID(), schedule[i - 1] ? "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2Y0NmMzMWQ2ZWU2ZWE2MTlmNzJlNzg1MjMyY2IwNDhhYjI3MDQ2MmRiMGNiMTQ1NDUxNDQzNjI1MWMxYSJ9fX0=": "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMzYxZTViMzMzYzJhMzg2OGJiNmE1OGI2Njc0YTI2MzkzMjM4MTU3MzhlNzdlMDUzOTc3NDE5YWYzZjc3In19fQ=="), "&rEnabled at " + i + ":XX " + (schedule[i - 1] ? "&4&l\u2718": "&2&l\u2714"), "", "&7Left Click: &rToggle State"));
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 			
-			menu.addMenuClickHandler(i + 8, (player, slot, item, action) -> {
+			menu.addMenuClickHandler(i + 8, (player, slot, item, cursor, action) -> {
 				schedule[slot - 9] = !schedule[slot - 9];
 				openSchedule(player);
 				return false;

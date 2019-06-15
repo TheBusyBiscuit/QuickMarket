@@ -1,4 +1,4 @@
-package me.mrCookieSlime.QuickMarket.shop;
+package io.github.thebusybiscuit.quickmarket.shop;
 
 import java.io.File;
 import java.util.HashMap;
@@ -16,13 +16,12 @@ import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Config;
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Variable;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.ChestMenu;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Inventory.Item.CustomItem;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Math.DoubleHandler;
-import me.mrCookieSlime.CSCoreLibPlugin.general.World.CustomSkull;
-import me.mrCookieSlime.QuickMarket.QuickMarket;
+import io.github.thebusybiscuit.cscorelib2.config.Config;
+import io.github.thebusybiscuit.cscorelib2.inventory.ChestMenu;
+import io.github.thebusybiscuit.cscorelib2.item.CustomItem;
+import io.github.thebusybiscuit.cscorelib2.math.DoubleHandler;
+import io.github.thebusybiscuit.cscorelib2.skull.SkullItem;
+import io.github.thebusybiscuit.quickmarket.QuickMarket;
 
 public class MarketStand {
 	
@@ -116,29 +115,29 @@ public class MarketStand {
 
 	public void openGUI(final Player p) throws Exception {
 		String symbol = QuickMarket.getInstance().cfg.getString("options.money-symbol");
-		ChestMenu menu = new ChestMenu("&4Market Manager");
+		ChestMenu menu = new ChestMenu(QuickMarket.getInstance(), "&4Market Manager");
 		
-		menu.addItem(0, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzFiYzJiY2ZiMmJkMzc1OWU2YjFlODZmYzdhNzk1ODVlMTEyN2RkMzU3ZmMyMDI4OTNmOWRlMjQxYmM5ZTUzMCJ9fX0="), "&7Rent for &b+1 &7Day", "&7Cost: &6" + symbol + DoubleHandler.getFancyDouble(cost), "", "&eCLICK &7to rent"));
-		menu.addMenuClickHandler(0, (player, slot, item, action) -> {
+		menu.addItem(0, new CustomItem(SkullItem.fromBase64(UUID.randomUUID(), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNzFiYzJiY2ZiMmJkMzc1OWU2YjFlODZmYzdhNzk1ODVlMTEyN2RkMzU3ZmMyMDI4OTNmOWRlMjQxYmM5ZTUzMCJ9fX0="), "&7Rent for &b+1 &7Day", "&7Cost: &6" + symbol + DoubleHandler.getFancyDouble(cost), "", "&eCLICK &7to rent"));
+		menu.addMenuClickHandler(0, (player, slot, item, cursor, action) -> {
 			rent(p, 1);
 			return false;
 		});
 		
-		menu.addItem(1, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGNkOWVlZWU4ODM0Njg4ODFkODM4NDhhNDZiZjMwMTI0ODVjMjNmNzU3NTNiOGZiZTg0ODczNDE0MTk4NDcifX19"), "&7Rent for &b+2 &7Days", "&7Cost: &6" + symbol + DoubleHandler.getFancyDouble(cost * 2), "", "&eCLICK &7to rent"));
-		menu.addMenuClickHandler(1, (player, slot, item, action) -> {
+		menu.addItem(1, new CustomItem(SkullItem.fromBase64(UUID.randomUUID(), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGNkOWVlZWU4ODM0Njg4ODFkODM4NDhhNDZiZjMwMTI0ODVjMjNmNzU3NTNiOGZiZTg0ODczNDE0MTk4NDcifX19"), "&7Rent for &b+2 &7Days", "&7Cost: &6" + symbol + DoubleHandler.getFancyDouble(cost * 2), "", "&eCLICK &7to rent"));
+		menu.addMenuClickHandler(1, (player, slot, item, cursor, action) -> {
 			rent(p, 2);
 			return false;
 		});
 		
-		menu.addItem(2, new CustomItem(CustomSkull.getItem("eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWQ0ZWFlMTM5MzM4NjBhNmRmNWU4ZTk1NTY5M2I5NWE4YzNiMTVjMzZiOGI1ODc1MzJhYzA5OTZiYzM3ZTUifX19"), "&7Rent for &b+3 &7Days", "&7Cost: &6" + symbol + DoubleHandler.getFancyDouble(cost * 3), "", "&eCLICK &7to rent"));
-		menu.addMenuClickHandler(2, (player, slot, item, action) -> {
+		menu.addItem(2, new CustomItem(SkullItem.fromBase64(UUID.randomUUID(), "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMWQ0ZWFlMTM5MzM4NjBhNmRmNWU4ZTk1NTY5M2I5NWE4YzNiMTVjMzZiOGI1ODc1MzJhYzA5OTZiYzM3ZTUifX19"), "&7Rent for &b+3 &7Days", "&7Cost: &6" + symbol + DoubleHandler.getFancyDouble(cost * 3), "", "&eCLICK &7to rent"));
+		menu.addMenuClickHandler(2, (player, slot, item, cursor, action) -> {
 			rent(p, 3);
 			return false;
 		});
 		
 		if (timestamp > System.currentTimeMillis() && owner != null) {
 			menu.addItem(8, new CustomItem(new ItemStack(Material.BARRIER), "&4Abandon Marketstand", "", "&7Refund: &c" + symbol + DoubleHandler.getFancyDouble(getRefund()) + " &4(50%)", "", "&eCLICK &7to abandon this Marketstand"));
-			menu.addMenuClickHandler(8, (player, slot, item, action) -> {
+			menu.addMenuClickHandler(8, (player, slot, item, cursor, action) -> {
 				if (owner != null) {
 					QuickMarket.getInstance().economy.depositPlayer(p, getRefund());
 					abandon();
@@ -164,13 +163,13 @@ public class MarketStand {
 			long max = System.currentTimeMillis() + 1000 * 60 * 60 * 24 * QuickMarket.getInstance().cfg.getInt("marketstand.max-days");
 			
 			if (timestamp + 1000 * 60 * 60 * 24 * days > max) {
-				QuickMarket.getInstance().local.sendTranslation(p, "market.too-long", true);
+				QuickMarket.getInstance().local.sendMessage(p, "market.too-long", true);
 			}
 			else {
 				this.timestamp = timestamp + 1000 * 60 * 60 * 24 * days;
 				this.owner = p.getUniqueId();
 				QuickMarket.getInstance().economy.withdrawPlayer(p, cost);
-				QuickMarket.getInstance().local.sendTranslation(p, "market.rented", true, new Variable("%days%", String.valueOf(days)));
+				QuickMarket.getInstance().local.sendMessage(p, "market.rented", true, (msg) -> msg.replace("%days%", String.valueOf(days)));
 				
 				p.playSound(p.getLocation(), Sound.ENTITY_PLAYER_LEVELUP, 1F, 1F);
 				update();
@@ -178,7 +177,7 @@ public class MarketStand {
 			}
 		}
 		else {
-			QuickMarket.getInstance().local.sendTranslation(p, "market.insufficient-funds", true);
+			QuickMarket.getInstance().local.sendMessage(p, "market.insufficient-funds", true);
 		}
 		p.closeInventory();
 	}

@@ -1,4 +1,4 @@
-package me.mrCookieSlime.QuickMarket.shop;
+package io.github.thebusybiscuit.quickmarket.shop;
 
 public enum ShopProtectionLevel {
 	

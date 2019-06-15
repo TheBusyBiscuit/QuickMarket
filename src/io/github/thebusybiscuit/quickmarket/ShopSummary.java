@@ -1,14 +1,13 @@
-package me.mrCookieSlime.QuickMarket;
+package io.github.thebusybiscuit.quickmarket;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
-import me.mrCookieSlime.CSCoreLibPlugin.Configuration.Variable;
-import me.mrCookieSlime.CSCoreLibPlugin.general.Math.DoubleHandler;
-
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+
+import io.github.thebusybiscuit.cscorelib2.math.DoubleHandler;
 
 public class ShopSummary {
 	
@@ -21,13 +20,21 @@ public class ShopSummary {
 				for (String p: temp_moneyS.keySet()) {
 					int amount = temp_itemsS.get(p);
 					double money = temp_moneyS.get(p);
-					QuickMarket.getInstance().local.sendTranslation(pl, "shops.sold-owner", false, new Variable("{MONEY}", symbol + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)), new Variable("{PLAYER}", p));
+					QuickMarket.getInstance().local.sendMessage(pl, "shops.sold-owner", false, (msg) -> {
+						return msg.replace("{MONEY}", symbol + DoubleHandler.getFancyDouble(money))
+								.replace("{AMOUNT}", String.valueOf(amount))
+								.replace("{PLAYER}", p);
+					});
 				}
 				
 				for (String p: temp_moneyB.keySet()) {
 					int amount = temp_itemsB.get(p);
 					double money = temp_moneyB.get(p);
-					QuickMarket.getInstance().local.sendTranslation(pl, "shops.bought-owner", false, new Variable("{MONEY}", symbol + DoubleHandler.getFancyDouble(money)), new Variable("{AMOUNT}", String.valueOf(amount)), new Variable("{PLAYER}", p));
+					QuickMarket.getInstance().local.sendMessage(pl, "shops.bought-owner", false, (msg) -> {
+						return msg.replace("{MONEY}", symbol + DoubleHandler.getFancyDouble(money))
+								.replace("{AMOUNT}", String.valueOf(amount))
+								.replace("{PLAYER}", p);
+					});
 				}
 				
 				temp_moneyS.clear();
