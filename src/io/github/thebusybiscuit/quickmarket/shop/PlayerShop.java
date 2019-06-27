@@ -322,7 +322,10 @@ public class PlayerShop {
 		case SELL_ALL:
 		{
 			boolean full = false;
+			double price = this.price;
 			if (type.equals(ShopType.SELL)) {
+				price = DoubleHandler.fixDouble(price / getAmount());
+				
 				int n = 0;
 				inventory:
 				for (ItemStack item: p.getInventory().getContents()) {
@@ -352,7 +355,7 @@ public class PlayerShop {
 				// Check if the current Item matches the Shop's Item
 				if (ItemUtils.canStack(item, this.item)) {
 					// Get how many Items the Shop Owner can afford
-					int quantity = infinite ? item.getAmount() : (int) ((QuickMarket.getInstance().economy.getBalance(Bukkit.getOfflinePlayer(owner)) / this.price));
+					int quantity = infinite ? item.getAmount() : (int) ((QuickMarket.getInstance().economy.getBalance(Bukkit.getOfflinePlayer(owner)) / price));
 					if (quantity > item.getAmount()) quantity = item.getAmount();
 					
 					// Check if the Amount of Items a Player can sell exceeds the Sell Limit
@@ -361,7 +364,7 @@ public class PlayerShop {
 					// Check if the Player can actually sell anything at all
 					if (quantity > 0) {
 						// Get all Items which did not fit in the Chest
-						Map<Integer, ItemStack> rest = infinite ? new HashMap<Integer, ItemStack>(): chest.getInventory().addItem(new CustomItem(item, quantity));
+						Map<Integer, ItemStack> rest = infinite ? new HashMap<>(): chest.getInventory().addItem(new CustomItem(item, quantity));
 						if (rest.isEmpty()) {
 							if (item.getAmount() - quantity > 0) p.getInventory().setItem(i, new CustomItem(item, item.getAmount() - quantity));
 							else p.getInventory().setItem(i, null);
@@ -406,7 +409,7 @@ public class PlayerShop {
 								full = true;
 								// Updating the total Variables
 								amount = amount + quantity;
-								money = money + this.price * quantity;
+								money = money + price * quantity;
 								break inventory;
 							}
 							else p.getInventory().setItem(i, null);
@@ -414,7 +417,7 @@ public class PlayerShop {
 						
 						// Updating the total Variables
 						amount = amount + quantity;
-						money = money + this.price * quantity;
+						money = money + price * quantity;
 						
 						// Uhoh Sell Limit exceeded
 						if (type.equals(ShopType.SELL) && amount >= this.amount) break inventory;
@@ -433,7 +436,7 @@ public class PlayerShop {
 						// Check if the current Item matches the Shop's Item
 						if (ItemUtils.canStack(stack, this.item)) {
 							// Get how many Items the Shop Owner can afford
-							int quantity = infinite ? stack.getAmount() : (int) (QuickMarket.getInstance().economy.getBalance(Bukkit.getOfflinePlayer(owner)) / this.price);
+							int quantity = infinite ? stack.getAmount() : (int) (QuickMarket.getInstance().economy.getBalance(Bukkit.getOfflinePlayer(owner)) / price);
 							if (quantity > stack.getAmount()) quantity = stack.getAmount();
 							
 							// Check if the Amount of Items a Player can sell exceeds the Sell Limit
@@ -488,7 +491,7 @@ public class PlayerShop {
 										full = true;
 										// Updating the total Variables
 										amount = amount + quantity;
-										money = money + this.price * quantity;
+										money = money + price * quantity;
 										break inventory;
 									}
 									else backpack.setItem(j, null);
@@ -497,7 +500,7 @@ public class PlayerShop {
 								
 								// Updating the total Variables
 								amount = amount + quantity;
-								money = money + this.price * quantity;
+								money = money + price * quantity;
 								
 								// Uhoh Sell Limit exceeded
 								if (type.equals(ShopType.SELL) && amount >= this.amount) break inventory;
