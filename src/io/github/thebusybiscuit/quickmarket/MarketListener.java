@@ -39,7 +39,7 @@ public class MarketListener implements Listener {
 	}
 	
 	private final BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
-	private final Map<UUID, Consumer<Block>> link = new HashMap<UUID, Consumer<Block>>();
+	private final Map<UUID, Consumer<Block>> link = new HashMap<>();
 	
 	@EventHandler(priority=EventPriority.LOWEST)
 	public void onInteract(PlayerInteractEvent e) {

@@ -179,7 +179,7 @@ public class PlayerShop {
 		display.setVelocity(new Vector(0, 0.1, 0));
 		
 		if (QuickMarket.getInstance().cfg.getBoolean("options.item-nametags")) {
-			display.setCustomName(ItemUtils.getFormattedItemName(item));
+			display.setCustomName(ItemUtils.getItemName(item));
 			display.setCustomNameVisible(true);
 		}
 		
@@ -563,7 +563,7 @@ public class PlayerShop {
 			return false;
 		});
 		
-		menu.addItem(4, new CustomItem(this.item.getType(), "&r" + ItemUtils.getFormattedItemName(item), "", "&7Left Click: &rBuy &e" + amount + " " + ItemUtils.getFormattedItemName(item)));
+		menu.addItem(4, new CustomItem(this.item.getType(), "&r" + ItemUtils.getItemName(item), "", "&7Left Click: &rBuy &e" + amount + " " + ItemUtils.getItemName(item)));
 		menu.addMenuClickHandler(4, (player, slot, item, cursor, action) -> {
 			handleTransaction(p, amount);
 			return false;
@@ -654,7 +654,7 @@ public class PlayerShop {
 		
 		menu.addMenuCloseHandler((player) -> setEditMode(false));
 		
-		menu.addItem(0, new CustomItem(this.item.getType(), "&r" + ItemUtils.getFormattedItemName(item), "", "&7Left Click: &rChange Item to the Item held in your main Hand"));
+		menu.addItem(0, new CustomItem(this.item.getType(), "&r" + ItemUtils.getItemName(item), "", "&7Left Click: &rChange Item to the Item held in your main Hand"));
 		menu.addMenuClickHandler(0, (player, slot, item, cursor, action) -> {
 			if (player.getInventory().getItemInMainHand() != null && player.getInventory().getItemInMainHand().getType() != null && player.getInventory().getItemInMainHand().getType() != Material.AIR) {
 				setItem(player.getInventory().getItemInMainHand());
