@@ -65,6 +65,8 @@ public class QuickMarket extends JavaPlugin {
 			else return file.listFiles().length;
 		}));
 		
+		getCommand("quickmarket").setExecutor(new QuickMarketCommand());
+		
 		local = new Localization(this);
 		local.setPrefix("&6Quickmarket &7> ");
 		local.setDefaultMessage("shops.not-a-chest", "&cThis Sign must be facing a Chest!");

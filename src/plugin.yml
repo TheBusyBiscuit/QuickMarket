@@ -8,6 +8,11 @@ softdepend: [PrisonUtils]
 main: io.github.thebusybiscuit.quickmarket.QuickMarket
 api-version: 1.13
 
+commands:
+  quickmarket:
+    description: Shows your QuickMarket version
+    usage: /quickmarket
+
 permissions:
   QuickMarket.shop.infinite:
     description: Allows you to make infinite Shops
