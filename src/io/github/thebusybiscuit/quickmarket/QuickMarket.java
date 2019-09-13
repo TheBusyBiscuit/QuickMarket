@@ -148,16 +148,12 @@ public class QuickMarket extends JavaPlugin {
 			clearlag = getServer().getPluginManager().isPluginEnabled("ClearLag");
 			backpacks = getServer().getPluginManager().isPluginEnabled("PrisonUtils");
 			
-			getServer().getScheduler().scheduleSyncRepeatingTask(this, new Runnable() {
-				
-				@Override
-				public void run() {
-					for (PlayerShop shop: PlayerShop.shops) {
-						shop.update(true);
-					}
-					for (MarketStand market: MarketStand.map.values()) {
-						market.update();
-					}
+			getServer().getScheduler().scheduleSyncRepeatingTask(this, () -> {
+				for (PlayerShop shop: PlayerShop.shops) {
+					shop.update(true);
+				}
+				for (MarketStand market: MarketStand.map.values()) {
+					market.update();
 				}
 			}, 0L, cfg.getInt("options.item-refresh-delay") * 20L);
 		}
@@ -170,7 +166,7 @@ public class QuickMarket extends JavaPlugin {
 	private boolean setupEconomy() {
 		RegisteredServiceProvider<Economy> economyProvider = getServer().getServicesManager().getRegistration(Economy.class);
 	    if (economyProvider != null) {
-	      economy = (Economy)economyProvider.getProvider();
+	      economy = (Economy) economyProvider.getProvider();
 	    }
 
 	    return economy != null;

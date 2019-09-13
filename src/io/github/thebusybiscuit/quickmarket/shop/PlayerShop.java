@@ -122,7 +122,7 @@ public class PlayerShop {
 			price = cfg.getDouble("price");
 			item = cfg.getItem("item");
 			
-			if (item == null) {
+			if (item == null || item.getType() == null || item.getType() == Material.AIR) {
 				throw new NullPointerException(cfg.getFile().getName() + " has no item!");
 			}
 			
@@ -179,6 +179,10 @@ public class PlayerShop {
 			display.removeMetadata("quickmarket_item", QuickMarket.getInstance());
 			display.remove();
 		}
+
+		if (item == null || item.getType() == null || item.getType() == Material.AIR) {
+			return;
+		}
 		
 		display = chest.getWorld().dropItem(chest.getLocation().add(0.5, 1.2, 0.5), new CustomItem(new CustomItem(item, "&6&lQuickMarket Display Item &e" + System.currentTimeMillis()), 1));
 		display.setVelocity(new Vector(0, 0.1, 0));
@@ -193,7 +197,7 @@ public class PlayerShop {
 	}
 
 	public void handleTransaction(Player p, int amount2) {
-		if (this.owner == null) {
+		if (this.owner == null || this.item == null) {
 			QuickMarket.getInstance().local.sendMessage(p, "shops.disabled", true);
 			update(false);
 			return;
@@ -655,6 +659,12 @@ public class PlayerShop {
 	}
 	
 	public void openEditor(Player p) {
+		if (item == null || item.getType() == null || item.getType() == Material.AIR) {
+			this.item = new CustomItem(Material.APPLE, "Invalid Item");
+			
+			p.sendMessage(ChatColor.RED + "QuickMarket Item is invalid? Replacing it with a placeholder...");
+		}
+		
 		setEditMode(true);
 		p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1F, 1F);
 		ChestMenu menu = new ChestMenu(QuickMarket.getInstance(), "&eShop Editor");
