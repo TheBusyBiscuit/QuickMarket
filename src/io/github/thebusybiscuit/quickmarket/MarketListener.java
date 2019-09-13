@@ -154,8 +154,12 @@ public class MarketListener implements Listener {
 			}
 			
 			for (PlayerShop shop: shops) {
-				if (shop.getDisplayItem() != null) shop.getDisplayItem().remove();
+				if (shop.getDisplayItem() != null) {
+					shop.getDisplayItem().remove();
+				}
+				
 				shop.setLoaded(false);
+				shop.store();
 			}
 		}
 	}
@@ -184,6 +188,7 @@ public class MarketListener implements Listener {
 		
 		if (shop != null) {
 			e.setCancelled(true);
+			
 			if (shop.isOwner(e.getPlayer())) {
 				if (shop.isMarket()) {
 					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.delete-via-sign", true);
@@ -198,8 +203,10 @@ public class MarketListener implements Listener {
 		}
 		else {
 			shop = PlayerShop.signs.get(e.getBlock());
+			
 			if (shop != null) {
 				e.setCancelled(true);
+				
 				if (shop.isOwner(e.getPlayer())) {
 					if (shop.isMarket()) {
 						QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "market.delete-via-sign", true);

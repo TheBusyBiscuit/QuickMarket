@@ -17,6 +17,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 import io.github.thebusybiscuit.cscorelib2.config.Config;
 import io.github.thebusybiscuit.cscorelib2.config.Localization;
 import io.github.thebusybiscuit.cscorelib2.updater.BukkitUpdater;
+import io.github.thebusybiscuit.cscorelib2.updater.GitHubBuildsUpdater;
+import io.github.thebusybiscuit.cscorelib2.updater.Updater;
 import io.github.thebusybiscuit.quickmarket.shop.MarketStand;
 import io.github.thebusybiscuit.quickmarket.shop.PlayerMarket;
 import io.github.thebusybiscuit.quickmarket.shop.PlayerShop;
@@ -27,7 +29,8 @@ public class QuickMarket extends JavaPlugin {
 	private static QuickMarket instance;
 	public Config cfg;
 	public Localization local;
-	private boolean clearlag, backpacks;
+	private boolean clearlag;
+	private boolean backpacks;
 	public Economy economy;
 
 	protected List<UUID> worlds = new ArrayList<>();
@@ -37,9 +40,23 @@ public class QuickMarket extends JavaPlugin {
 		instance = this;
 		
 		cfg = new Config(this);
-		new BukkitUpdater(this, getFile(), 94051).start();
-		
+		// Setting up bStats
 		Metrics metrics = new Metrics(this);
+
+		// Setting up the Auto-Updater
+		Updater updater;
+
+		if (!getDescription().getVersion().startsWith("DEV - ")) {
+			// We are using an official build, use the BukkitDev Updater
+			updater = new BukkitUpdater(this, getFile(), 94051);
+		}
+		else {
+			// If we are using a development build, we want to switch to our custom 
+			updater = new GitHubBuildsUpdater(this, getFile(), "TheBusyBiscuit/QuickMarket/master");
+		}
+		
+		// Only run the Updater if it has not been disabled
+		if (cfg.getBoolean("options.auto-update")) updater.start();
 		
 		metrics.addCustomChart(new Metrics.SingleLineChart("player_shops_on_servers_using_quickmarket", () -> {
 			File file = new File("data-storage/QuickMarket/shops");
@@ -186,6 +203,9 @@ public class QuickMarket extends JavaPlugin {
 		
 		if (PlayerShop.shops != null) {
 			for (PlayerShop shop: PlayerShop.shops) {
+				if (shop.getDisplayItem() != null) {
+					shop.getDisplayItem().remove();
+				}
 				shop.store();
 			}
 			for (MarketStand market: MarketStand.map.values()) {

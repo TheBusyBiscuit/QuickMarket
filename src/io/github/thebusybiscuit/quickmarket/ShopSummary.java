@@ -11,6 +11,11 @@ import io.github.thebusybiscuit.cscorelib2.math.DoubleHandler;
 
 public class ShopSummary {
 	
+	public Map<String, Double> temp_moneyS = new HashMap<>();
+	public Map<String, Double> temp_moneyB = new HashMap<>();
+	public Map<String, Integer> temp_itemsS = new HashMap<>();
+	public Map<String, Integer> temp_itemsB = new HashMap<>();
+	
 	public ShopSummary(final UUID owner) {
 		Bukkit.getScheduler().runTaskTimer(QuickMarket.getInstance(), () -> {
 			Player pl = Bukkit.getPlayer(owner);
@@ -44,8 +49,5 @@ public class ShopSummary {
 			}
 		}, 0L, 60 * 20L);
 	}
-	
-	public Map<String, Double> temp_moneyS = new HashMap<>(), temp_moneyB = new HashMap<>();
-	public Map<String, Integer> temp_itemsS = new HashMap<>(), temp_itemsB = new HashMap<>();
 
 }

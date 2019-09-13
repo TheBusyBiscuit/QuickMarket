@@ -58,6 +58,7 @@ public class PlayerShop {
 	
 	protected boolean loaded = true;
 	protected boolean editing = false;
+	protected boolean dirty = false;
 	
 	public ShopSummary getSummary() {
 		if (!summaries.containsKey(owner)) {
@@ -319,6 +320,7 @@ public class PlayerShop {
 							}
 							else p.getWorld().dropItemNaturally(p.getLocation(), is);
 							this.used = used + amount;
+							dirty = true;
 						}
 					}
 					else QuickMarket.getInstance().local.sendMessage(p, "shops.not-enough-items-owner", true);
@@ -546,6 +548,7 @@ public class PlayerShop {
 				}
 				// Update the "Used" Stat
 				this.used = used + amount;
+				dirty = true;
 			}
 			else if (!full) QuickMarket.getInstance().local.sendMessage(p, "shops.full-inventory", true);
 			break;
@@ -614,8 +617,11 @@ public class PlayerShop {
 	}
 
 	public void store() {
-		if (display != null) {
-			display.remove();
+		if (!dirty) {
+			return;
+		}
+		else {
+			dirty = false;
 		}
 		
 		if (new File("data-storage/QuickMarket/shops/" + chest.getWorld().getUID().toString() + "_" + chest.getBlock().getX() + "_" + chest.getBlock().getY() + "_" + chest.getBlock().getZ() + ".shop").exists()) {
@@ -661,6 +667,7 @@ public class PlayerShop {
 	public void openEditor(Player p) {
 		if (item == null || item.getType() == null || item.getType() == Material.AIR) {
 			this.item = new CustomItem(Material.APPLE, "Invalid Item");
+			dirty = true;
 			
 			p.sendMessage(ChatColor.RED + "QuickMarket Item is invalid? Replacing it with a placeholder...");
 		}
@@ -677,6 +684,7 @@ public class PlayerShop {
 				setItem(player.getInventory().getItemInMainHand());
 				update(true);
 				openEditor(player);
+				dirty = true;
 			}
 			return false;
 		});
@@ -685,6 +693,7 @@ public class PlayerShop {
 		menu.addMenuClickHandler(1, (player, slot, item, cursor, action) -> {
 			toggleType();
 			openEditor(player);
+			dirty = true;
 			return false;
 		});
 		
@@ -697,6 +706,7 @@ public class PlayerShop {
 				if (amount < 1) amount = 1;
 				setAmount(amount);
 				openEditor(player);
+				dirty = true;
 				return false;
 			});
 		}
@@ -724,6 +734,7 @@ public class PlayerShop {
 					toggleInfinity();
 					update(false);
 					openEditor(player);
+					dirty = true;
 					return false;
 				});
 			}
@@ -732,6 +743,7 @@ public class PlayerShop {
 			menu.addMenuClickHandler(isMarket() ? 8: 7, (player, slot, item, cursor, action) -> {
 				toggleState();
 				openEditor(player);
+				dirty = true;
 				return false;
 			});
 			
@@ -794,6 +806,7 @@ public class PlayerShop {
 			
 			setPrice(price);
 			openEditor(p);
+			dirty = true;
 			return false;
 		};
 	}
@@ -821,6 +834,7 @@ public class PlayerShop {
 			menu.addMenuClickHandler(i + 8, (player, slot, item, cursor, action) -> {
 				schedule[slot - 9] = !schedule[slot - 9];
 				openSchedule(player);
+				dirty = true;
 				return false;
 			});
 		}
