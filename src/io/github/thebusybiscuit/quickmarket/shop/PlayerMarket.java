@@ -11,8 +11,7 @@ import io.github.thebusybiscuit.cscorelib2.item.CustomItem;
 
 public class PlayerMarket extends PlayerShop {
 	
-	public static final ItemStack placeholder = new CustomItem(Material.CHEST, "Shop");
-	String market;
+	private String market;
 
 	public PlayerMarket(String market, Block sign, Block chest, Player p, int amount, double price, ShopType type) {
 		super(sign, chest, p, amount, price, type);
@@ -29,6 +28,7 @@ public class PlayerMarket extends PlayerShop {
 		MarketStand stand = MarketStand.map.get(market);
 		
 		this.owner = stand.owner;
+		ItemStack placeholder = new CustomItem(Material.CHEST, "Shop");
 		
 		if (stand.timestamp == 0 && !ItemUtils.canStack(this.item, placeholder)) {
 			this.owner = null;

@@ -11,6 +11,7 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.Container;
 import org.bukkit.block.Sign;
+import org.bukkit.block.data.type.Chest;
 import org.bukkit.block.data.type.WallSign;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -34,12 +35,11 @@ import io.github.thebusybiscuit.quickmarket.shop.ShopType;
 
 public class MarketListener implements Listener {
 	
+	private final Map<UUID, Consumer<Block>> link = new HashMap<>();
+	
 	public MarketListener(QuickMarket plugin) {
 		plugin.getServer().getPluginManager().registerEvents(this, plugin);
 	}
-	
-	private final BlockFace[] faces = {BlockFace.NORTH, BlockFace.EAST, BlockFace.SOUTH, BlockFace.WEST};
-	private final Map<UUID, Consumer<Block>> link = new HashMap<>();
 	
 	@EventHandler(priority=EventPriority.LOWEST)
 	public void onInteract(PlayerInteractEvent e) {
@@ -70,7 +70,7 @@ public class MarketListener implements Listener {
 				}
 			}
 			else if (e.getClickedBlock().getState() instanceof Container) {
-				ShopProtectionLevel level = isChestProtected(e.getPlayer(), e.getClickedBlock());
+				ShopProtectionLevel level = isChestProtected(e.getPlayer(), e.getClickedBlock(), true);
 				if (level.equals(ShopProtectionLevel.NO_ACCESS)) {
 					e.setCancelled(true);
 					QuickMarket.getInstance().local.sendMessage(e.getPlayer(), "shops.no-access", true);
@@ -79,23 +79,42 @@ public class MarketListener implements Listener {
 		}
 	}
 	
-	private ShopProtectionLevel isChestProtected(Player p, Block b) {
+	private ShopProtectionLevel isChestProtected(Player p, Block b, boolean deep) {
 		PlayerShop shop = PlayerShop.chests.get(b);
 		
 		if (shop != null) {
-			return (p == null ||!shop.isOwner(p) || shop.getOwner() == null) ? ShopProtectionLevel.NO_ACCESS: ShopProtectionLevel.ACCESS;
+			return (p == null || !shop.isOwner(p) || shop.getOwner() == null) ? ShopProtectionLevel.NO_ACCESS: ShopProtectionLevel.ACCESS;
 		}
-		else {
-			for (BlockFace face: faces) {
-				Block block = b.getRelative(face);
-				PlayerShop adjacentShop = PlayerShop.chests.get(block);
-				if (block.getType().equals(b.getType()) && adjacentShop != null) {
-					return (p == null ||!adjacentShop.isOwner(p) || adjacentShop.getOwner() == null) ? ShopProtectionLevel.NO_ACCESS: ShopProtectionLevel.ACCESS;
-				}
+		else if (deep && b.getState() instanceof Chest) {
+			Chest chest = (Chest) b.getBlockData();
+			
+			switch (chest.getType()) {
+			case LEFT:
+				return isChestProtected(p, b.getRelative(rotate(chest.getFacing())), false);
+			case RIGHT:
+				return isChestProtected(p, b.getRelative(rotate(chest.getFacing()).getOppositeFace()), false);
+			default:
+				break;
 			}
 		}
+		
 		return ShopProtectionLevel.NO_SHOP;
 	}
+	
+	private BlockFace rotate(BlockFace face) {
+        switch (face) {
+            case NORTH:
+                return BlockFace.EAST;
+            case EAST:
+                return BlockFace.SOUTH;
+            case SOUTH:
+                return BlockFace.WEST;
+            case WEST:
+                return BlockFace.NORTH;
+            default:
+                throw new IllegalArgumentException("Illegal BlockFace: " + face);
+        }
+    }
 	
 	@EventHandler
 	public void onPickup(EntityPickupItemEvent e) {

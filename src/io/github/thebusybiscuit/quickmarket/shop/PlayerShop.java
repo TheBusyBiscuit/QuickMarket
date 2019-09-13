@@ -60,7 +60,9 @@ public class PlayerShop {
 	protected boolean editing = false;
 	
 	public ShopSummary getSummary() {
-		if (!summaries.containsKey(owner)) summaries.put(owner, new ShopSummary(owner));
+		if (!summaries.containsKey(owner)) {
+			summaries.put(owner, new ShopSummary(owner));
+		}
 		return summaries.get(owner);
 	}
 	
@@ -93,7 +95,10 @@ public class PlayerShop {
 	}
 	
 	private void load() {
-		if (sign == null || chest == null) return;
+		if (sign == null || chest == null) {
+			return;
+		}
+		
 		shops.add(this);
 		signs.put(sign.getBlock(), this);
 		chests.put(chest.getBlock(), this);
@@ -624,7 +629,9 @@ public class PlayerShop {
 				cfg.setValue("owner", owner.toString());
 				cfg.setValue("name", player);
 			}
-			else cfg.setValue("owner", null);
+			else {
+				cfg.setValue("owner", null);
+			}
 			
 			cfg.setValue("price", price);
 			cfg.setValue("item", new ItemStack(item));
@@ -652,7 +659,7 @@ public class PlayerShop {
 		p.playSound(p.getLocation(), Sound.BLOCK_WOODEN_BUTTON_CLICK_ON, 1F, 1F);
 		ChestMenu menu = new ChestMenu(QuickMarket.getInstance(), "&eShop Editor");
 		
-		menu.addMenuCloseHandler((player) -> setEditMode(false));
+		menu.addMenuCloseHandler(pl -> setEditMode(false));
 		
 		menu.addItem(0, new CustomItem(this.item.getType(), "&r" + ItemUtils.getItemName(item), "", "&7Left Click: &rChange Item to the Item held in your main Hand"));
 		menu.addMenuClickHandler(0, (player, slot, item, cursor, action) -> {
@@ -888,8 +895,13 @@ public class PlayerShop {
 			List<PlayerShop> list = chunks.get(chest.getWorld().getUID().toString() + "_" + chest.getChunk().getX() + "_" + chest.getChunk().getZ());
 			if (list != null) {
 				list.remove(this);
-				if (list.isEmpty()) chunks.remove(chest.getWorld().getUID().toString() + "_" + chest.getChunk().getX() + "_" + chest.getChunk().getZ());
-				else chunks.put(chest.getWorld().getUID().toString() + "_" + chest.getChunk().getX() + "_" + chest.getChunk().getZ(), list);
+				
+				if (list.isEmpty()) {
+					chunks.remove(chest.getWorld().getUID().toString() + "_" + chest.getChunk().getX() + "_" + chest.getChunk().getZ());
+				}
+				else {
+					chunks.put(chest.getWorld().getUID().toString() + "_" + chest.getChunk().getX() + "_" + chest.getChunk().getZ(), list);
+				}
 			}
 		}
 		
@@ -907,14 +919,20 @@ public class PlayerShop {
 	}
 
 	public boolean isOwner(Player p) {
-		if (owner == null) return false;
-		
 		if (infinite) {
 			return p.hasPermission("QuickMarket.shop.infinite");
 		}
-		else if (p.getUniqueId().equals(owner)) return true;
-		
-		return p.hasPermission("QuickMarket.shop.bypass");
+		else if (owner != null) {
+			if (p.getUniqueId().equals(owner)) {
+				return true;
+			}
+			else {
+				return p.hasPermission("QuickMarket.shop.bypass");
+			}
+		}
+		else {
+			return false;
+		}
 	}
 	
 	public boolean isInfinite() {
